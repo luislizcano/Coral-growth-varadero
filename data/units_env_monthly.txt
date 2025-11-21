@@ -1,0 +1,8 @@
+Environmental data
+Columns:
+Water flow (m3/s)
+Water level (cm)
+Sediment load (KTon/Day)
+Air temperature (°C)
+SOI
+AMO

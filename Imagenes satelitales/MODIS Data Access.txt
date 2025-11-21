@@ -1,0 +1,7 @@
+https://lpdaac.usgs.gov/tools/data-pool/
+
+
+Reflectance for turbidity
+H10 V7: tile at Cartagena Bay
+MOD09Q1 250m 8-day composite
+MOD09GQ 250m daily
