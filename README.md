@@ -32,3 +32,20 @@ Luis Lizcano-Sandoval, Angela Marulanda-Gómez, Mateo López-Victoria, Alberto R
 * However, the files *coral_growth.xlsx* and *coral_lumn.xlsx* contains annual data for each coral core, and it is organized in two ways: indexed and per columns.
 * The *coral_lumn.xlsx* also contains some comparisons with annual water flow data.
 * Multiple linear regression results (*MLR_results.xlsx*), *O. faveolata* growth records in the Caribbean (*Ofaveolata_growth_references.xlsx*), and information about coral core samples for aDNA (*VAR2_CUBOS_aDNA.xlsx*) (Penn State U) are available.
+### Figures/results:
+#### Figures:
+* The figures used for the manuscript are avaialble in .jgp and .tif formats. The .tif files are at least 600ppp.
+* Some reference pictures from Varadero are in the respective subfolder.
+* Other exploratory and discarded figures are in the *Old* subfolder.
+### Scripts:
+* The scripts used for MLR were ran in Matlab. The files ending with "_OLD" in their name are old and unused versions of the script.
+*  Other analyses and plots were ran in python and found in the respective subfolder.
+*  The script *varadero_climatology.py* is used to obtain climatologies of the Figure S2.
+*  The script *varadero_script_annual.py* is used for linear regression analysis, change point detections, and Figures 3 and 4.
+*  The data for the analyses is placed inside the python subfolder
+*  The subfolder *outputs* contains some old and unused figures.
+*  The subfolder *wavelet* contains some exploratory wavelet analysis.
+### Manuscript:
+* The last version (date) of the manuscript is indicated in the filename.
+* Old revisions and comments are in the subfolder *Revisiones*.
+* Submitted versions are in the respective subfolders.
