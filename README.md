@@ -2,7 +2,9 @@
 ## Accelerated growth of the scleractinian coral Orbicella faveolata under turbid and polluted water conditions
 Luis Lizcano-Sandoval, Angela Marulanda-Gómez, Mateo López-Victoria, Alberto Rodriguez-Ramirez
 
-<img src="https://raw.github.com/luislizcano/Coral-growth-varadero/main/Figures/Fig.%202.jpg" width="800">
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Fig.%202.jpg" width="600">
+</p>
 
 ## Description
 ### Raw coral growth and luminescence data:
