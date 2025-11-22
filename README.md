@@ -24,3 +24,11 @@ Luis Lizcano-Sandoval, Angela Marulanda-Gómez, Mateo López-Victoria, Alberto R
 ### Maps of the study area:
 #### Maps_data:
 * Shapefiles and QGIS files used for creating maps of the study area.
+### Processed data:
+#### Data_processed:
+* Monthly and annual coral growth, luminiscence, and environmental data is available in respective excel files.
+* Monthly coral growth and luminescence data may present gaps due to (x-ray) image resolution. These data is available for each coral core.
+* Annual coral growth and luminescence data is only available for the global average (master).
+* However, the files *coral_growth.xlsx* and *coral_lumn.xlsx* contains annual data for each coral core, and it is organized in two ways: indexed and per columns.
+* The *coral_lumn.xlsx* also contains some comparisons with annual water flow data.
+* Multiple linear regression results (*MLR_results.xlsx*), *O. faveolata* growth records in the Caribbean (*Ofaveolata_growth_references.xlsx*), and information about coral core samples for aDNA (*VAR2_CUBOS_aDNA.xlsx*) (Penn State U) are available.
