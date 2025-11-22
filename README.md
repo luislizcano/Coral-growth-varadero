@@ -7,8 +7,8 @@ Luis Lizcano-Sandoval, Angela Marulanda-Gómez, Mateo López-Victoria, Alberto R
 </p>
 
 ## Description
-### Raw coral growth and luminescence data:
-#### Sclerocronology: 
+### 1. Raw coral growth and luminescence data:
+#### [Sclerocronology](https://github.com/luislizcano/Coral-growth-varadero/tree/main/Sclerocronology): 
 * Sclerocronology of each coral specimen is in separate excel files.
 * Selected X-ray and CT-scan images are available in jpg and tif formats. Also, respective UV images are available.
 * Edited X-ray images indicating each respective year.
@@ -16,32 +16,33 @@ Luis Lizcano-Sandoval, Angela Marulanda-Gómez, Mateo López-Victoria, Alberto R
 * Edited and analyzed coral core images are in the *PhotoshopFiles.rar* (7 parts).
 * A comparison between x-ray and CT is in the respective pdf file.
 * **Note**: I don't have the original x-ray and CT-scan files. Those files were in originally stored in CD's and probably returned to Mateo.
-#### UV:
+#### [UV](https://github.com/luislizcano/Coral-growth-varadero/tree/main/UV):
 * Raw G/B data per respective coral core and in separate excel files.
 * Images indicating the tracks from where the G/B ratios were taken along the coral cores.
 * The file *Datos UV_Varadero.xlxs* contains information from all cores, but including some exploratory analysis (not important).
 * Reference pictures of the UV lamp used are also available.
-### Raw environmental data:
-#### Envdata_raw:
+### 2. Raw environmental data:
+#### [Envdata_raw](https://github.com/luislizcano/Coral-growth-varadero/tree/main/Envdata_raw):
 * Raw IDEAM data from several monitoring stations in .txt files
 * Several excel files containing pre-processed data, exploratory analysis, and comparisons
-### Maps of the study area:
-#### Maps_data:
+### 3. Maps of the study area:
+#### [Maps_data](https://github.com/luislizcano/Coral-growth-varadero/tree/main/Maps_data):
 * Shapefiles and QGIS files used for creating maps of the study area.
-### Processed data:
-#### Data_processed:
+### 4. Processed data:
+#### [Data_processed](https://github.com/luislizcano/Coral-growth-varadero/tree/main/Data_processed):
+* Processed data used in formal analysis.
 * Monthly and annual coral growth, luminiscence, and environmental data is available in respective excel files.
 * Monthly coral growth and luminescence data may present gaps due to (x-ray) image resolution. These data is available for each coral core.
 * Annual coral growth and luminescence data is only available for the global average (master).
 * However, the files *coral_growth.xlsx* and *coral_lumn.xlsx* contains annual data for each coral core, and it is organized in two ways: indexed and per columns.
 * The *coral_lumn.xlsx* also contains some comparisons with annual water flow data.
 * Multiple linear regression results (*MLR_results.xlsx*), *O. faveolata* growth records in the Caribbean (*Ofaveolata_growth_references.xlsx*), and information about coral core samples for aDNA (*VAR2_CUBOS_aDNA.xlsx*) (Penn State U) are available.
-### Figures/results:
-#### Figures:
+### 5. Figures/results:
+#### [Figures](https://github.com/luislizcano/Coral-growth-varadero/tree/main/Figures):
 * The figures used for the manuscript are avaialble in .jgp and .tif formats. The .tif files are at least 600ppp.
 * Some reference pictures from Varadero are in the respective subfolder.
 * Other exploratory and discarded figures are in the *Old* subfolder.
-### Scripts:
+### 6. [Scripts](https://github.com/luislizcano/Coral-growth-varadero/tree/main/Scripts):
 * The scripts used for MLR were ran in Matlab. The files ending with "_OLD" in their name are old and unused versions of the script.
 *  Other analyses and plots were ran in python and found in the respective subfolder.
 *  The script *varadero_climatology.py* is used to obtain climatologies of the Figure S2.
@@ -49,7 +50,7 @@ Luis Lizcano-Sandoval, Angela Marulanda-Gómez, Mateo López-Victoria, Alberto R
 *  The data for the analyses is placed inside the python subfolder
 *  The subfolder *outputs* contains some old and unused figures.
 *  The subfolder *wavelet* contains some exploratory wavelet analysis.
-### Manuscript:
+### 7. [Manuscript](https://github.com/luislizcano/Coral-growth-varadero/tree/main/Manuscrito):
 * The last version (date) of the manuscript is indicated in the filename.
 * Old revisions and comments are in the subfolder *Revisiones*.
 * Submitted versions are in the respective subfolders.
