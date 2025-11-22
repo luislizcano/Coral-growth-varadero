@@ -1,4 +1,4 @@
-# Repository (Private &#9940;)
+# Repository (Private use &#9940;)
 ## Accelerated growth of the scleractinian coral Orbicella faveolata under turbid and polluted water conditions
 Luis Lizcano-Sandoval, Angela Marulanda-Gómez, Mateo López-Victoria, Alberto Rodriguez-Ramirez
 
