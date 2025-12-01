@@ -17,7 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import seaborn as sns
-
+from scipy.stats import pearsonr
 
 ### 'ruptures' package required
 #python -m pip install ruptures
@@ -523,13 +523,27 @@ axesE2[2].xaxis.set_major_locator(ticker.MultipleLocator(5))
 
 # =============================================================================
 ####### FIG E3. Lumin data (all 4 cores in a plot) 1981-2015
+# sns.reset_orig()
 figE3, axesE3 = plt.subplots(1, 1, figsize=(6,3), sharex=True)
 pltE3 = sns.lineplot(y=[0,0], x=[1980,2017],ax=axesE3,color='black',alpha=0.2)
 pltE3 = sns.lineplot(data=stda_lumin, y="G/B", x="Year",hue='Core',linewidth=0.7)
 pltE3 = sns.lineplot(data=stda_lumin_mean, y="G/B", x="Year",color='black',label='Mean')
 
+## Second Y-axis
+axesE3_2 = axesE3.twinx()
+sns.lineplot(data=stda_wf, x='Year', y='WaterFlow', label='Water Flow',
+            color = '#0600ff', ax=axesE3_2)
+axesE3_2.set_ylabel(None)
+axesE3_2.legend(fontsize=8,loc=2).set_visible(True)
+# axesE3_2.yaxis.set_major_formatter(formatter)
+# axesE3_2.spines['right'].set_color(palette_dic['Forest'])
+# axesE3_2.tick_params(axis='y', colors=palette_dic['Forest'])
+
 ## Limits
 axesE3.set_xlim([1981,2016])
+axesE3.set_ylim([-2.5,2.5])
+axesE3_2.set_xlim([1981,2016])
+axesE3_2.set_ylim([-2.5,2.5])
 ## Legend
 handlesE3, labelsE3 = axesE3.get_legend_handles_labels()
 pltE3.legend(handlesE3, labelsE3, loc='upper right', fontsize=7)
@@ -541,13 +555,50 @@ axesE3.xaxis.set_major_locator(ticker.MultipleLocator(5))
 
 
 # =============================================================================
+####### FIG E3B. Lumin data (all 4 cores in a plot) 1981-2015
+### CORRELATIONS
+## The correlation is made with the number of valid data among each pair of variables.
+## nans are discarded automatically.
+lum_data = pd.concat([
+    lumin.loc[lumin['Core'] == 'VAR1']['G/B'].reset_index(drop=True).rename('VAR1'),
+    lumin.loc[lumin['Core'] == 'VAR2']['G/B'].reset_index(drop=True).rename('VAR2'),
+    lumin.loc[lumin['Core'] == 'VAR3']['G/B'].reset_index(drop=True).rename('VAR3'),
+    lumin.loc[lumin['Core'] == 'VAR4']['G/B'].reset_index(drop=True).rename('VAR4'),
+    lumin_mean['G/B'].rename('Mean'),wf_all['WaterFlow']],
+    axis=1,join='outer')
+corr_lum = lum_data.corr(method = 'pearson')
+
+## STDA
+lum_stda_data = pd.concat([
+    stda_lumin.loc[stda_lumin['Core'] == 'VAR1']['G/B'].reset_index(drop=True).rename('VAR1'),
+    stda_lumin.loc[stda_lumin['Core'] == 'VAR2']['G/B'].reset_index(drop=True).rename('VAR2'),
+    stda_lumin.loc[stda_lumin['Core'] == 'VAR3']['G/B'].reset_index(drop=True).rename('VAR3'),
+    stda_lumin.loc[stda_lumin['Core'] == 'VAR4']['G/B'].reset_index(drop=True).rename('VAR4'),
+    stda_lumin_mean['G/B'].rename('Mean'),stda_wf['WaterFlow']],
+    axis=1,join='outer')
+corr_lum_stda = lum_stda_data.corr(method = 'pearson')
+# Function to return p-value for pearsonr
+def calculate_pvalue(col1, col2):
+    return pearsonr(col1, col2)[1]
+# Create a DataFrame to store p-values
+p_values = lum_stda_data.corr(method=calculate_pvalue)
+
+## PLOT
+figE3b, axesE3b = plt.subplots(1,1, figsize=(5,4), dpi=150)
+pltE3b = sns.heatmap(corr_lum_stda,annot=True,fmt=".2f",linewidth=.5,vmin=0.0,vmax=1,
+                   cbar=False)
+axesE3b.set_title('Correlations Luminescence vs WaterFlow (Normalized)')
+#figE3b.savefig(dir+'\\figE3b_Lumin_corr_stda.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
+
+
+# =============================================================================
 ####### FIG E4. DECADAL TRENDS STDA Growth data (All cores)
 figE4, axesE4 = plt.subplots(3, 1, figsize=(6,7), sharex=True)
 x4 = 'Period'
 y4 = 'slope'
-pltE4 = sns.lineplot(y=[0,0], x=[-1,6],ax=axes4[0],color='black',alpha=0.2)
-pltE4 = sns.lineplot(y=[0,0], x=[-1,6],ax=axes4[1],color='black',alpha=0.2)
-pltE4 = sns.lineplot(y=[0,0], x=[-1,6],ax=axes4[2],color='black',alpha=0.2)
+pltE4 = sns.lineplot(y=[0,0], x=[-1,6],ax=axesE4[0],color='black',alpha=0.2)
+pltE4 = sns.lineplot(y=[0,0], x=[-1,6],ax=axesE4[1],color='black',alpha=0.2)
+pltE4 = sns.lineplot(y=[0,0], x=[-1,6],ax=axesE4[2],color='black',alpha=0.2)
 
 pltE4 = sns.barplot(data=reg_den_dec,x='Period', y='slope',ax=axesE4[0],color='#1f77b4')
 pltE4 = sns.barplot(data=reg_ext_dec,x='Period', y='slope',ax=axesE4[1],color='#1f77b4')
