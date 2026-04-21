@@ -80,7 +80,8 @@ lumin_yr = lumin_yr.reset_index(drop=True)
 wf = envir.loc[0:419,:]['WaterFlow']#.interpolate()
 # wl = envir.loc[0:382,:]['WaterLevel']#.interpolate()
 # sed = envir.loc[0:382,:]['Sediment']
-temp = envir.loc[0:748,:]['Temperature']
+temp = envir.loc[0:748,:]['Air_Temperature']
+sst = envir.loc[0:407,:]['SST_CCI']
 soi = envir.loc[0:755,:]['SOI']
 amo = envir.loc[0:755,:]['AMO']
 dateEnv = envir.iloc[0:756,0:3]#['Year','Month','Y.M']
@@ -90,12 +91,14 @@ clim_wf = climat(wf,dateEnv,'Month')
 # clim_wl = climat(wl,dateEnv,'Month')
 # clim_sed = climat(sed,dateEnv,'Month')
 clim_temp = climat(temp,dateEnv,'Month')
+clim_sst = climat(sst,dateEnv,'Month')
 
 
 # =============================================================================
 # ## STANDARDIZED NORMALIZATIONS (Z-SCORES)
 # =============================================================================
-envir_var = ['WaterFlow','WaterLevel','Sediment','Temperature','SOI','AMO']
+envir_var = ['WaterFlow','WaterLevel','Sediment','Air_Temperature',
+             'SST_CCI','SOI','AMO']
 
 stda_growth = pd.concat([growth[['Core','Y.M']],STDAidx(growth,growth_var,'Core',core_index)],axis=1)
 stda_lumin = pd.concat([lumin[['Core','Y.M']],STDAidx(lumin,['G/B'],'Core',core_index)],axis=1)
@@ -129,12 +132,12 @@ namex = 'Month'
 ax_wf = 'Water flow (m3 s-1)'
 ax_wl = 'Water level (cm)'
 ax_sed = 'Sediment load (Kton d-1)'
-ax_temp = 'Temperature (°C)'
+ax_temp = 'SST (°C)'
 monthlabel = ['J','F','M','A','M','J','J','A','S','O','N','D']
 
 ## plots
 pltS2 = sns.lineplot(data=clim_wf, y="Mean", x="Months", ax=axesS2[0])
-pltS2 = sns.lineplot(data=clim_temp,y="Mean", x="Months",ax=axesS2[1])
+pltS2 = sns.lineplot(data=clim_sst,y="Mean", x="Months",ax=axesS2[1])
 # pltS2 = sns.lineplot(data=clim_sed,y="Mean", x="Months",ax=axesS2[2])
 # pltS2 = sns.lineplot(data=clim_wl,y="Mean", x="Months",ax=axesS2[3])
 ## Error
@@ -142,7 +145,7 @@ axesS2[0].fill_between(
     clim_wf['Months'],clim_wf['Mean']+clim_wf['Std'],clim_wf['Mean']-clim_wf['Std'],
     facecolor='#CDECFE',alpha=0.7)
 axesS2[1].fill_between(
-     clim_temp['Months'],clim_temp['Mean']+clim_temp['Std'],clim_temp['Mean']-clim_temp['Std'],
+     clim_sst['Months'],clim_sst['Mean']+clim_sst['Std'],clim_sst['Mean']-clim_sst['Std'],
     facecolor='#CDECFE',alpha=0.7)
 # axesS2[2].fill_between(
 #     clim_sed['Months'],clim_sed['Mean']+clim_sed['Std'],clim_sed['Mean']-clim_sed['Std'],
@@ -152,14 +155,14 @@ axesS2[1].fill_between(
 #     facecolor='#CDECFE',alpha=0.7)
 ## Axis-Y Labels
 axesS2[0].set(ylabel='Water flow \n($m^3 s^{-1}$)')
-axesS2[1].set(ylabel='Air temperature \n($°C$)')
+axesS2[1].set(ylabel='SST \n($°C$)')
 # axesS2[2].set(ylabel='Sediment load \n($Gg$ $d^{-1}$)')
 # axesS2[3].set(ylabel='Water level \n($cm$)')
 for ax in axesS2:
     ax.set_xticks([1,2,3,4,5,6,7,8,9,10,11,12])
     ax.set_xticklabels(monthlabel)
 
-axesS2[1].set_ylim([25.8,29.2])
+axesS2[1].set_ylim([26,31])
 
 # figS2.savefig(dir+'\\figS2.tiff', format='tiff', dpi=600,bbox_inches = 'tight')
 

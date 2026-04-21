@@ -69,8 +69,9 @@ lumin_period = pd.concat(lumin_period).sort_values(['Core','Year'],ascending=(Tr
 
 ### Parse environmental variables 1981-2015
 dateEnv = envir.iloc[0:35,0]#['Year','Month','Y.M']
-wf = envir.loc[0:35,:]['WaterFlow']#.interpolate()
-temp = envir.loc[0:35,:]['Temperature']
+wf = envir.loc[0:35,:]['WF_Helena']#.interpolate()
+wf2 = envir.loc[0:35,:]['WF_Calamar']#.interpolate()
+temp = envir.loc[0:35,:]['Air_Temperature']
 soi = envir.loc[0:35,:]['SOI']
 amo = envir.loc[0:35,:]['AMO']
 wf_std = envir.loc[0:35,:]['WF_std']#.interpolate()
@@ -95,8 +96,8 @@ lumin_mean_all = lumin.groupby(['Year']).mean(numeric_only=True).reset_index().d
 lumin_mean_all = lumin_mean_all.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
 lumin_std_all = lumin.groupby(['Year']).std(ddof=0,numeric_only=True).reset_index().drop(['G/B_std'],axis=1)
 lumin_std_all = lumin_std_all.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-wf_mean_all = envir[['Year','WaterFlow','WF_std']].dropna()
-temp_mean_all = envir[['Year','Temperature','Temp_std']].dropna()
+wf_mean_all = envir[['Year','WF_Helena','WF_std']].dropna()
+temp_mean_all = envir[['Year','Air_Temperature','Temp_std']].dropna()
 soi_mean_all = envir[['Year','SOI','SOI_std']].dropna()
 amo_mean_all = envir[['Year','AMO','AMO_std']].dropna()
 
@@ -119,12 +120,13 @@ lumin_std = lumin_std.sort_values(['Year'],ascending=(False)).reset_index(drop=T
 # =============================================================================
 growth_var = ['Density','Extension','Calcification']
 core_index = ['VAR1','VAR2','VAR3','VAR4']
-envir_var = ['WaterFlow','Temperature','SOI','AMO']
+envir_var = ['WF_Helena','WF_Calamar','Air_Temperature','SOI','AMO']
 
 ## FOR EACH CORE:
 stda_growth = pd.concat([growth_period[['Core','Year']],STDAidx(growth_period,growth_var,'Core',core_index)],axis=1)
 stda_lumin = pd.concat([lumin_period[['Core','Year']],STDAidx(lumin_period,['G/B'],'Core',core_index)],axis=1)
 stda_wf = pd.concat([dateEnv,STDA(wf)],axis=1,join='inner')
+stda_wf2 = pd.concat([dateEnv,STDA(wf2)],axis=1,join='inner')
 stda_temp = pd.concat([dateEnv,STDA(temp)],axis=1,join='inner')
 stda_soi = pd.concat([dateEnv,STDA(soi)],axis=1,join='inner')
 stda_amo = pd.concat([dateEnv,STDA(amo)],axis=1,join='inner')
@@ -138,8 +140,9 @@ stda_lumin_mean = stda_lumin_mean.sort_values(['Year'],ascending=(False)).reset_
 ## For the full timeseries
 stda_growth_all = pd.concat([growth[['Core','Year']],STDAidx(growth,growth_var,'Core',core_index)],axis=1)
 stda_lumin_all = pd.concat([lumin[['Core','Year']],STDAidx(lumin,['G/B'],'Core',core_index)],axis=1)
-stda_wf_all = pd.concat([envir['Year'],STDA(envir['WaterFlow'])],axis=1,join='inner')
-stda_temp_all = pd.concat([envir['Year'],STDA(envir['Temperature'])],axis=1,join='inner')
+stda_wf_all = pd.concat([envir['Year'],STDA(envir['WF_Helena'])],axis=1,join='inner')
+stda_wf2_all = pd.concat([envir['Year'],STDA(envir['WF_Calamar'])],axis=1,join='inner')
+stda_temp_all = pd.concat([envir['Year'],STDA(envir['Air_Temperature'])],axis=1,join='inner')
 stda_soi_all = pd.concat([envir['Year'],STDA(envir['SOI'])],axis=1,join='inner')
 stda_amo_all = pd.concat([envir['Year'],STDA(envir['AMO'])],axis=1,join='inner')
 
@@ -159,8 +162,8 @@ check_assumptions(growth_mean_all,'Density','Year') ## Normal / Not Homogeneous
 check_assumptions(growth_mean_all,'Extension','Year') ## Not normal / Homogeneous
 check_assumptions(growth_mean_all,'Calcification','Year') ## Not Normal / Not Homogeneous
 check_assumptions(lumin_mean_all,'G/B','Year') ## Normal / Homogeneous
-check_assumptions(wf_mean_all,'WaterFlow','Year') ## Normal / Homogeneous
-check_assumptions(temp_mean_all,'Temperature','Year') ## Normal / Homogeneous
+check_assumptions(wf_mean_all,'WF_Helena','Year') ## Normal / Homogeneous
+check_assumptions(temp_mean_all,'Air_Temperature','Year') ## Normal / Homogeneous
 check_assumptions(soi_mean_all,'SOI','Year') ## Normal  / Homogeneous
 check_assumptions(amo_mean_all,'AMO','Year') ## Normal / Not Homogeneous
 check_assumptions(stda_growth_all,'Calcification','Year') ## Normal / Not Homogeneous
@@ -171,8 +174,8 @@ reg_den = stats_all(growth_mean_all,'Density','Year',dates_list)
 reg_ext = stats_all(growth_mean_all,'Extension','Year',dates_list)
 reg_cal = stats_all(growth_mean_all,'Calcification','Year',dates_list)
 reg_lum = stats_all(lumin_mean_all,'G/B','Year',dates_list)
-reg_wf = stats_all(wf_mean_all,'WaterFlow','Year',dates_list)
-reg_temp = stats_all(temp_mean_all,'Temperature','Year',dates_list)
+reg_wf = stats_all(wf_mean_all,'WF_Helena','Year',dates_list)
+reg_temp = stats_all(temp_mean_all,'Air_Temperature','Year',dates_list)
 reg_soi = stats_all(soi_mean_all,'SOI','Year',dates_list)
 reg_amo = stats_all(amo_mean_all,'AMO','Year',dates_list)
 
@@ -181,9 +184,9 @@ dates_list = list(range(1954,2016))
 det_change = detect_changes(growth_mean_all,'Calcification',dates_list)
 det_change = detect_changes(lumin_mean_all,'G/B',dates_list)
 det_change = detect_changes(amo_mean_all,'AMO',dates_list)
-det_change = detect_changes(temp_mean_all,'Temperature',dates_list)
+det_change = detect_changes(temp_mean_all,'Air_Temperature',dates_list)
 det_change = detect_changes(soi_mean_all,'SOI',dates_list)
-det_change = detect_changes(wf_mean_all,'WaterFlow',dates_list)
+det_change = detect_changes(wf_mean_all,'WF_Helena',dates_list)
 
 ## Trend detections
 # seg_data = growth_mean_all[growth_mean_all['Year'].isin(dates_list)]['Extension']
@@ -238,7 +241,7 @@ lumin_std_before = (lumin_mean_all.loc[34:64,:]).std(ddof=0,numeric_only=True)
 
 
 # =============================================================================
-# ###### EXPLORATORY PLOTS (NOT INCLUDED IN MANUSCRIPT)
+# ###### PLOTS (INCLUDED IN MANUSCRIPT)
 # =============================================================================
 
 ###### FIG 0. CORAL TIMESPAN RECORDED
@@ -707,3 +710,121 @@ axesE5[3,1].set_xlabel('Period')#periods, fontsize=8)
 figE5.tight_layout()
 
 #figE5.savefig(dir+'\\figE5_stda-growth-change.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
+
+
+# =============================================================================
+####### FIG E6. Cross-Wavelet Transform
+import pyleoclim as pyleo
+
+# Load your data
+# x = stda_lumin_mean['G/B'].values
+# y = stda_wf['WF_Helena'][:-1].values
+# tx = stda_lumin_mean["Year"].values
+# ty = stda_wf2["Year"][:-1].values
+y = stda_lumin_mean_full['G/B'].values
+# y = stda_wf2_all['WF_Calamar'].values
+ty = stda_lumin_mean_full["Year"].values
+# ty = stda_wf2_all["Year"].values
+x = stda_growth_mean_full['Density'].values
+tx = stda_growth_mean_full["Year"].values
+
+ts_gb = pyleo.Series(time=tx, value=x, time_unit='yr', label='Density',verbose=False,
+                     value_name = r'$Density$',value_unit='STDA')
+ts_wf = pyleo.Series(time=ty, value=y, time_unit='yr', label='G/B',verbose=False,
+                     value_name = r'$Luminescence$',value_unit=r'$STDA$')
+
+## Plot wavelet transform
+ts_gb.wavelet(method='cwt').plot()
+ts_wf.wavelet(method='cwt').plot()
+
+## It change the scales of the scalogram.
+## First arg changes the Amplitude scale, the second arg changes the Y-scale
+## Say we wanted to focus on oscillations in the 0.7-10kyr range
+ts_wf_scl = ts_wf.wavelet(freq_kwargs={'fmin':1/30,'fmax':1,'nf':100})
+ts_wf_scl.plot()
+
+## Plot significance
+ts_wf_sig = ts_wf_scl.signif_test(method='CN',number = 1000)
+ts_wf_sig.plot()
+
+## Spectral plot
+psd = ts_wf.spectral(method='wwz')
+psd.beta_est().plot()
+
+#### Wavelet transform coherence between two series
+wf_gb = ts_wf.wavelet_coherence(ts_gb,method='wwz')
+fig, ax = wf_gb.plot()
+
+## Significance
+wf_gb_sig = wf_gb.signif_test(method='CN',number=100)
+fig, ax = wf_gb_sig.plot()
+
+## Dashboard
+wf_gb_sig.dashboard()
+
+## Save figure
+wf_gb_sig.dashboard(savefig_settings={'path':'./gb-Den_dash_Calamar_yr.tif','dpi':600})
+
+
+
+# =============================================================================
+####### FIG E7. Cross-Wavelet Transform - MONTHLY DATA
+import pyleoclim as pyleo
+
+path_env = os.path.join('E:\\GDrive\\Academicos\\Articulos\\Pendientes\\Varadero growth rates\\Data_processed', 
+                     'env_monthly.xlsx')
+path_lum = os.path.join('E:\\GDrive\\Academicos\\Articulos\\Pendientes\\Varadero growth rates\\Data_processed', 
+                     'coral_lumn_monthly.xlsx')
+data_env_m = pd.ExcelFile(path_env)
+data_lum_m = pd.ExcelFile(path_lum)
+
+env_m = data_env_m.parse(0).iloc[0:419,:]
+env_m = data_env_m.parse(0)
+lum_m = data_lum_m.parse(0)
+
+# Load your data
+x = lum_m['G/B'].values
+# y = env_m['WF_Calamar'][:-1].values
+y = env_m['WF_Helena'][:-1].values
+tx = lum_m["Y.M"].values
+ty = env_m["Y.M"][:-1].values
+
+
+ts_gb = pyleo.Series(time=tx, value=x, time_unit='yr', label='G/B',verbose=False,
+                     value_name = r'$Skeletal luminescence$',value_unit='G/B')
+ts_wf = pyleo.Series(time=ty, value=y, time_unit='yr', label='WF',verbose=False,
+                     value_name = r'$Water flow$',value_unit=r'$m_3$ $s_-1$')
+
+## Plot wavelet transform
+ts_gb.wavelet(method='cwt').plot()
+ts_wf.wavelet(method='cwt').plot()
+
+## It change the scales of the scalogram.
+## First arg changes the Amplitude scale, the second arg changes the Y-scale
+## Use fmax = 2 if data is deseasonalized, fmax = 12 for seasonalized data.
+## The scales of interest are determined by fmin, if want to focus on
+## scales of 1-10 year cycles use fmin = 1/10. The higher nf, the smoother the plot.
+ts_wf_scl = ts_wf.wavelet(freq_kwargs={'fmin':1/20,'fmax':6,'nf':100})
+ts_wf_scl.plot()
+
+## Plot significance
+ts_wf_sig = ts_wf_scl.signif_test(method='CN',number = 1000)
+ts_wf_sig.plot()
+
+## Spectral plot
+psd = ts_wf.spectral(method='wwz')
+psd.beta_est().plot()
+
+#### Wavelet transform coherence between two series
+wf_gb = ts_wf.wavelet_coherence(ts_gb,method='wwz')
+fig, ax = wf_gb.plot()
+
+## Significance
+wf_gb_sig = wf_gb.signif_test(method='CN',number=200)
+fig, ax = wf_gb_sig.plot()
+
+## Dashboard
+wf_gb_sig.dashboard()
+
+## Save figure
+wf_gb_sig.dashboard(savefig_settings={'path':'./wf-gb_dash_Helena_monthly.tif','dpi':600})
