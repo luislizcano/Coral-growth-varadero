@@ -38,24 +38,493 @@ from functions import mean_yr,mean_cols,STDA,STDAidx,climat,linreg,mean_range,\
                 stats_all,detect_changes,check_assumptions
 
 ## Load data
-data = pd.ExcelFile('Scripts\\python\\varadero_annual.xlsx')
-
-## Check the type of file
-print('File Type:',type(data))
+coral_data = pd.ExcelFile('Data_processed\\coral_growth_monthly_v2.xlsx')
+lumin_data = pd.ExcelFile('Data_processed\\coral_lumn_monthly.xlsx')
+envir_data = pd.ExcelFile('Data_processed\\env_monthly.xlsx')
 
 ## Check if the file has different sheets
-data.sheet_names
+lumin_data.sheet_names
 
 ## You can load data by number of sheet
-growth = data.parse(0).drop([96,97,98]).reset_index(drop=True) ## Growth data
-lumin = data.parse(1) ## Luminescence data
-envir = data.parse(2) ## Environmental data
-print('Number of rows and columns:',growth.shape)
+growth = coral_data.parse(1)#.drop([96,97,98]).reset_index(drop=True) ## Growth data
+lumin = lumin_data.parse(1) ## Luminescence data
+envir = envir_data.parse(0) ## Environmental data
+# print('Number of rows and columns:',growth.shape)
 
-## Show just the 'head' of the sheet content in the console
-print(growth.head())
-print('Column names:',list(growth.columns))
+## Check if there is missing data
+growth.isna().sum()
+lumin.isna().sum()
+envir.isna().sum()
 
+## Interpolate if needed
+# growth = growth.interpolate()
+
+
+
+# =============================================================================
+# Examine Normality
+# =============================================================================
+# If p < 0.05, assume non-normal distribution.
+from scipy.stats import shapiro
+
+shapiro(growth["Density"])
+shapiro(growth["Extension"])
+shapiro(growth["Calcification"])
+shapiro(lumin["G/B"])
+shapiro(envir["WF_Helena"])
+shapiro(envir["WF_Calamar"])
+shapiro(envir["HadISST"])
+shapiro(envir["SOI"])
+shapiro(envir["AMO"])
+
+# from scipy.stats import normaltest
+# normaltest(growth["Density"])
+
+growth[['Density','Extension','Calcification']].hist(figsize=(10,4))
+lumin[['G/B']].hist(figsize=(10,4))
+envir[['WF_Helena','WF_Calamar','HadISST','SOI','AMO']].hist(figsize=(10,4))
+'''
+Shapiro Results
+-------------------------------------
+Variable      | Statistic | p-value
+--------------|----------------------
+Density       |  0.97     |  0.000 *
+Extension     |  0.96     |  0.000 *
+Calcification |  0.96     |  0.000 *
+G/B           |  0.99     |  0.001 *
+WF_Helena     |  0.96     |  0.000 *
+WF_Calamar    |  0.98     |  0.000 *
+HadISST       |  0.97     |  0.000 *
+SOI           |  0.99     |  0.001 *
+AMO           |  0.99     |  0.013 *
+-------------------------------------
+*There is no normality for all variables.
+'''
+
+
+# =============================================================================
+# Test stationary
+# =============================================================================
+## A stationary time series is one whose statistical properties do not change over time
+## If p < 0.05, time series is stationary
+from statsmodels.tsa.stattools import adfuller
+
+# result = adfuller(growth["Density"])
+# result = adfuller(lumin["G/B"])
+result = adfuller(envir["SOI"])
+print('Statistic', result[0])   # statistic
+print('p-value', result[1])   # p-value
+
+'''
+Stationary Results
+-------------------------------------
+Variable      | Statistic | p-value
+--------------|----------------------
+Density       | -2.65     |  0.081
+Extension     | -2.46     |  0.124
+Calcification | -2.28     |  0.176
+G/B           | -3.26     |  0.016 *
+WF_Helena     | -2.58     |  0.097
+WF_Calamar    | -6.27     |  0.000 *
+HadISST       | -4.55     |  0.000 *
+SOI           | -7.48     |  0.000 *
+AMO           | -2.13     |  0.231
+-------------------------------------
+* Non stationary time-series
+'''
+
+# =============================================================================
+# Test Seasonality
+# =============================================================================
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+decomp = seasonal_decompose(envir["HadISST"], period=12)
+decomp.plot()
+
+
+# =============================================================================
+# Test Autocorrelations
+# =============================================================================
+## Blue Shaded Area: The 95% confidence interval.
+## Significant Autocorrelation: If a vertical bar sticks out above or below 
+## the blue area, it means that lag has a statistically significant correlation
+from statsmodels.graphics.tsaplots import plot_acf
+
+plot_acf(growth["Density"], lags=36)
+plt.show()
+
+plot_acf(envir["HadISST"], lags=36)
+plt.show()
+
+## Durbin-watson test: autocorrelation test at lag=1
+from statsmodels.stats.stattools import durbin_watson
+
+durbin_watson(growth["Calcification"])
+durbin_watson(lumin["G/B"])
+durbin_watson(envir["AMO"])
+'''
+* Durbin-Watson test at lag=1, autocorrelation is important at values < 2
+* Values > 2 indicates no autocorrelation.
+
+Density       = 0.005 *
+Extension     = 0.090 *
+Calcification = 0.085 *
+G/B           = 0.000 *
+WF_Helena     = 0.051 *
+WF_Calamar    = 0.049 *
+HadISST       = 0.000 *
+SOI           = 0.690 *
+AMO           = 0.141 *
+'''
+### Testing autocorrelation at specific lag.
+# from statsmodels.stats.diagnostic import acorr_ljungbox
+# lb_test = acorr_ljungbox(growth["Calcification"], lags=[1], return_df=True)
+# print(lb_test)
+
+
+# =============================================================================
+# OPTION A - Raw data
+# Time-series detrending (removing seasonality)
+# =============================================================================
+
+def detrend(df, cols):
+    for c in cols:
+        df[c+"_anom"] = (
+            df[c] -
+            df.groupby(df.Month)[c].transform("mean")
+        )
+    return df
+
+growth_det = detrend(growth, ['Density','Extension','Calcification']).iloc[0:744,:]
+lumin_det = detrend(lumin, ['G/B'])
+envir_det = detrend(envir, ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
+
+# =============================================================================
+# Pearson Correlation
+# =============================================================================
+from scipy.stats import pearsonr
+
+# growth_det = growth_det.sort_values(by='Y.M.', ascending=True)
+# lumin_det = lumin_det.sort_values(by='Y.M', ascending=True)
+# envir_det = envir_det.sort_values(by='Y.M', ascending=True)
+
+def corr(x_df,y_df,x_cols,y_cols):
+    for x in x_cols:
+        for y in y_cols:
+            r_val, p_val = pearsonr(x_df[x], y_df[y])
+            print(f"\n--- Final Results {x} vs {y} ---")
+            print(f"Correlation Coefficient (r): {r_val:.2f}")
+            print(f"Adjusted p-value: {p_val:.3f}")
+
+## Prepare data >1984
+growth_det2 = growth_det.iloc[0:384,:]
+lumin_det2 = lumin_det.iloc[0:384,:]
+envir_det2 = envir_det.iloc[0:384,:]
+## Prepare data <1984
+growth_det3 = growth_det.iloc[384:,:]
+lumin_det3 = lumin_det.iloc[384:,:]
+envir_det3 = envir_det.iloc[384:,:]
+
+## Variables
+growth_vars = ['Density','Extension','Calcification']
+lumin_vars = ['G/B']
+envir_vars = ['WF_Helena','WF_Calamar','HadISST','SOI','AMO']
+growth_vars2 = ['Density_anom','Extension_anom','Calcification_anom']
+lumin_vars2 = ['G/B_anom']
+envir_vars2 = ['WF_Helena_anom','WF_Calamar_anom','HadISST_anom','SOI_anom','AMO_anom']
+
+## Correlations of raw data
+growth_corrs = corr(envir_det, growth_det, envir_vars, growth_vars)
+lumin_corrs = corr(envir_det,lumin_det, envir_vars, lumin_vars)
+
+## test post 1984 [0:384,:]
+growth_corrs2 = corr(envir_det2,growth_det2, envir_vars, growth_vars)
+lumin_corrs2 = corr(envir_det2,lumin_det2, envir_vars, lumin_vars)
+
+## test pre 1983 [384:,:]. Sta Helena data is modeled
+growth_corrs3 = corr(envir_det3,growth_det3, envir_vars, growth_vars)
+lumin_corrs3 = corr(envir_det3,lumin_det3, envir_vars, lumin_vars)
+'''
+USING RAW DATA
+------------------------------------------------------------------------------------
+ 1954-2015    | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       | 0.08,0.026  | 0.43,<0.001 | 0.45,<0.001 | 0.05,0.146 |-0.12,0.001  |
+Extension     | 0.17,<0.001 | 0.10,0.004  |-0.20,<0.001 | 0.05,0.178 | 0.08,0.023  |
+Calcification | 0.18,<0.001 | 0.31,<0.001 | 0.01,0.845  | 0.07,0.062 | 0.01,0.829  |
+G/B           | 0.22,<0.001 | 0.53,<0.001 | 0.04,0.258  | 0.10,0.005 |-0.19,<0.001 |
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       | 0.39,<0.001 | 0.48,<0.001 | 0.53,<0.001 |-0.04,0.396 |-0.03,0.542  |
+Extension     | 0.16,0.002  | 0.08,0.122  |-0.20,<0.001 | 0.14,0.006 |-0.07,0.542  |
+Calcification | 0.33,<0.001 | 0.30,<0.001 | 0.04,0.412  | 0.11,0.035 |-0.07,0.156  |
+G/B           | 0.49,<0.001 | 0.55,<0.001 | 0.02,0.689  | 0.11,0.027 |-0.12,0.016  |
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       | 0.40,<0.001 | 0.45,<0.001 | 0.54,<0.001 | 0.09,0.079 | 0.01,0.864  |
+Extension     | 0.10,0.051  | 0.13,0.012  |-0.25,<0.001 |-0.01,0.860 | 0.16,0.002  |
+Calcification | 0.27,<0.001 | 0.32,<0.001 |-0.00,0.942  | 0.03,0.561 | 0.16,0.002  |
+G/B           | 0.47,<0.001 | 0.55,<0.001 | 0.16,0.002  | 0.05,0.321 | 0.11,0.046  |
+------------------------------------------------------------------------------------
+'''
+
+## Correlations of detrended data
+growth_corrs = corr(envir_det, growth_det, envir_vars2, growth_vars2)
+lumin_corrs = corr(envir_det,lumin_det, envir_vars2, lumin_vars2)
+
+## test post 1984 [0:384,:]
+growth_corrs2 = corr(envir_det2,growth_det2, envir_vars2, growth_vars2)
+lumin_corrs2 = corr(envir_det2,lumin_det2, envir_vars2, lumin_vars2)
+
+## test pre 1983 [384:,:]. Sta Helena data is modeled
+growth_corrs3 = corr(envir_det3,growth_det3, envir_vars2, growth_vars2)
+lumin_corrs3 = corr(envir_det3,lumin_det3, envir_vars2, lumin_vars2)
+'''
+USING DETRENDED DATA
+------------------------------------------------------------------------------------
+ 1954-2015    | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       |-0.31,<0.001 | 0.12,0.002  |-0.14,<0.001 | 0.12,0.001 |-0.21,<0.001 |
+Extension     | 0.13,<0.001 |-0.01,0.847  | 0.18,<0.001 | 0.09,0.011 | 0.24,<0.001 |
+Calcification |-0.07,0.054  | 0.05,0.178  | 0.06,0.080  | 0.15,<0.001| 0.09,0.013  |
+G/B           |-0.13,0.001  | 0.33,<0.001 |-0.36,<0.001 | 0.21,<0.001|-0.25,<0.001 |
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       | 0.01,0.825  | 0.18,<0.001 |-0.08,0.138  |-0.01,0.919 |-0.22,<0.001 |
+Extension     | 0.03,0.516  |-0.04,0.465  | 0.16,0.002  | 0.15,0.004 | 0.10,0.056  |
+Calcification | 0.01,0.797  | 0.03,0.584  | 0.05,0.307  | 0.12,0.016 |-0.05,0.326  |
+G/B           | 0.24,<0.001 | 0.40,<0.001 |-0.44,<0.001 | 0.18,<0.001|-0.38,<0.001 |
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       | 0.02,0.679  | 0.08,0.125  | 0.05,0.326  | 0.19,<0.001| 0.07,0.208  |
+Extension     |-0.01,0.833  | 0.03,0.536  | 0.11,0.033  | 0.07,0.199 | 0.30,<0.001 |
+Calcification | 0.00,0.927  | 0.07,0.170  | 0.15,0.004  | 0.16,0.003 | 0.32,<0.001 |
+G/B           | 0.17,0.001  | 0.30,<0.001 |-0.04,0.442  | 0.23,<0.001| 0.23,<0.001 |
+------------------------------------------------------------------------------------
+'''
+plt.scatter(envir_det2['WF_Helena_anom'], lumin_det2['G/B_anom'])
+
+# =============================================================================
+# OPTION B - Residuals
+# Time-series detrending (removing seasonality)
+# =============================================================================
+
+from statsmodels.tsa.stattools import acf
+
+def resid_det(df, cols):
+    df_residuals = pd.DataFrame(index=df.index)
+    
+    for col in cols:
+        # Using multiplicative or additive decomposition depending on your data structure
+        decomposition = seasonal_decompose(df[col], model='additive', period=12)
+        # Extract the residual component (un-autocorrelated anomaly)
+        df_residuals[col] = decomposition.resid
+    
+    # Drop NaNs created at the edges by the decomposition window
+    df_residuals.dropna(inplace=True)
+    return df_residuals
+
+growth_resid = resid_det(growth.iloc[0:744,:],['Density','Extension','Calcification'])
+lumin_resid = resid_det(lumin,['G/B'])
+envir_resid = resid_det(envir,['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
+# Test if residuals still have autocorrelation using Autocorrelation Function (ACF)
+print("Residual Autocorrelation (Lag 1):", acf(envir_resid['AMO'], nlags=1)[1])
+# Values close to 0 mean autocorrelation has been successfully mitigated.
+
+'''
+Autocorrelation values from -1 to +1.
+Values close to 0 mean autocorrelation has been successfully mitigated.
+Autocorrelation after removing seasonality on residuals:
+    Density       = 0.644
+    Extension     = 0.388
+    Calcification = 0.389
+    G/B           = 0.071
+    WF_Helena     = 0.561
+    WF_Calamar    = 0.595
+    HadISST       = 0.338
+    SOI           = 0.134
+    AMO           = 0.609
+*** Autocorrelation is still high.
+'''
+
+
+# =============================================================================
+# Pearson Correlation
+# =============================================================================
+
+def corr(x_df,y_df,x_cols,y_cols):
+    for x in x_cols:
+        for y in y_cols:
+            r_val, p_val = pearsonr(x_df[x], y_df[y])
+            print(f"\n--- Final Results {x} vs {y} ---")
+            print(f"Correlation Coefficient (r): {r_val:.4f}")
+            print(f"Adjusted p-value: {p_val:.4e}")
+
+growth_corrs = corr(envir_resid,growth_resid,
+                    ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'],
+                    ['Density','Extension','Calcification'])
+lumin_corrs = corr(envir_resid,lumin_resid,
+                    ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'],['G/B'])
+
+plt.scatter(envir_resid['HadISST'], growth_resid['Density'])
+'''
+-------------------------------------------------------------------------------------
+              | WF_Helena   | WF_Calamar  | HadISST     | SOI         | AMO         |
+-------------------------------------------------------------------------------------
+Density       |-0.03,<0.001 | 0.10,<0.001 |-0.03,<0.001 |-0.05,<0.001 | 0.05,<0.001 |
+Extension     |-0.08,<0.001 |-0.05,<0.001 | 0.13,<0.001 | 0.03,<0.001 | 0.12,<0.001 |
+Calcification |-0.09,<0.001 |-0.02,<0.001 | 0.13,<0.001 | 0.02,<0.001 | 0.01,<0.001 |
+G/B           | 0.07,<0.001 | 0.07,<0.001 |-0.06,<0.001 |-0.04,<0.001 | 0.06,<0.001 |
+-------------------------------------------------------------------------------------
+Correlations with High sginificance, but low coefficient. 
+'''
+
+# =============================================================================
+# Cross-correlations
+# =============================================================================
+from statsmodels.tsa.stattools import ccf
+
+cross = ccf(envir_det["HadISST"], growth_det["Density"])
+
+
+
+
+# =============================================================================
+# MULTIPLE VARIABLE EVALUATIONS
+# =============================================================================
+
+## Predictor correlations
+envir_det[envir_vars2].corr()
+
+## Variance Inflation Factors (VIFs)
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+vif = pd.DataFrame({
+    "Variable": envir_det[envir_vars2].columns,
+    "VIF": [variance_inflation_factor(envir_det[envir_vars2].values, i)
+            for i in range(envir_det[envir_vars2].shape[1])] })
+print(vif)
+'''
+VIF < 5: generally acceptable
+VIF between 5 and 10: moderate multicollinearity.
+VIF > 10: severe multicollinearity.
+
+          Variable       VIF
+0   WF_Helena_anom  1.902295
+1  WF_Calamar_anom  2.281343
+2     HadISST_anom  1.975874
+3         SOI_anom  1.456005
+4         AMO_anom  2.056262
+'''
+
+# =============================================================================
+# MULTIPLE LINEAR REGRESSION
+# =============================================================================
+import statsmodels.api as sm
+
+def mlr(x_df, y_df, x_vars, y_vars):
+    X = sm.add_constant(x_df[x_vars])
+    for i in y_vars:
+        y = y_df[i]
+        model = sm.OLS(y, X).fit()
+        print("\n \n Response Variable: "+i)
+        print(model.summary())
+        
+        ## Check autocorrelation of residuals
+        plot_acf(model.resid, lags=36)
+
+
+mlr(envir_det, growth_det, envir_vars2, growth_vars2)
+'''
+Residuals are autocorrelated. So, go to the next step
+'''
+
+# =============================================================================
+# GLSAR (Generalized Least Squares with AR errors)
+# =============================================================================
+'''
+The rho value determines the autoregressive order (AR(rho)). This order can be
+determined not only with the ACF, but looking at the AIC an BIC values, with
+lower values prefered.
+Here, the Density showed autocorrelations at lag ~16, but the extension and 
+calcification at lag ~5. The Density may required AR with rho ~5, maybe.
+'''
+
+from statsmodels.regression.linear_model import GLSAR
+
+def glsar_run(x_df, y_df, x_vars, y_vars):
+    X = sm.add_constant(x_df[x_vars])
+    for i in y_vars:
+        y = y_df[i]
+        glsar = GLSAR(y, X, rho=1)
+        results = glsar.iterative_fit(maxiter=10)
+        print(results.summary())
+
+glsar_run(envir_det.sort_values(by='Y.M', ascending=False), 
+          growth_det.sort_values(by='Y.M.', ascending=False), 
+          envir_vars2, growth_vars2)
+'''
+The coefficients and R2 are very small, although there are some variables with
+p < 0.05. This suggest is better to inspect GAMM in R.
+'''
+
+
+
+# =============================================================================
+# SARIMAX
+# =============================================================================
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+def sarimax_run(x_df, y_df, x_vars, y_vars):
+    X = sm.add_constant(x_df[x_vars])
+    for i in y_vars:
+        y = y_df[i]      
+        model = SARIMAX(
+            endog=y,
+            exog=X,
+            order=(1,0,0), # rho=1
+            seasonal_order=(0,0,0,0) )
+        sarimax = model.fit()
+        print(sarimax.summary())
+        print('AIC', sarimax.aic)
+
+sarimax_run(envir_det.sort_values(by='Y.M', ascending=False), 
+          growth_det.sort_values(by='Y.M.', ascending=False), 
+          envir_vars2, growth_vars2)
+
+# =============================================================================
+# Generalized Additive Model (GAM)
+# =============================================================================
+## Suppose the effect of env vars are nonlinear.
+from pygam import LinearGAM, s
+
+def gam_run(x_df, y_df, x_vars, y_vars):
+    X = x_df[x_vars].values
+    for i in y_vars:
+        y = y_df[i].values
+        gam = LinearGAM(s(0)+s(1)+s(2)+s(3)+s(4)).fit(X,y)
+        print("GAM {i}", gam.summary())
+    
+    # XX = gam.generate_X_grid(term=0)
+    # plt.plot(
+    #     XX[:,0],
+    #     gam.partial_dependence(term=0))
+        
+gam_run(envir_det.sort_values(by='Y.M', ascending=False), 
+          growth_det.sort_values(by='Y.M.', ascending=False), 
+          envir_vars2, growth_vars2)
 
 # =============================================================================
 # ## Get data for the respective period 1982-2015:
