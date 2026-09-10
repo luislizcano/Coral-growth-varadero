@@ -10,10 +10,12 @@
 * SOI
 * AMO
 
+## Preliminary tests using raw data (no transformations or treatments)
+
 ### Normality test (raw data)
 
-Shapiro test
-If p < 0.05, then the distribution is non-normal
+**Test:** Shapiro-Wilk test for normality \
+**Interpretation:** If p < 0.05, then the distribution is non-normal
 
 |Variable      | Statistic | p-value  |
 |--------------|-----------|----------|
