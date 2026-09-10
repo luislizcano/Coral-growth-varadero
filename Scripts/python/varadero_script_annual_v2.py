@@ -46,7 +46,7 @@ envir_data = pd.ExcelFile('Data_processed\\env_monthly.xlsx')
 lumin_data.sheet_names
 
 ## You can load data by number of sheet
-growth = coral_data.parse(1)#.drop([96,97,98]).reset_index(drop=True) ## Growth data
+growth = coral_data.parse(1).iloc[0:744]#.drop([96,97,98]).reset_index(drop=True) ## Growth data
 lumin = lumin_data.parse(1) ## Luminescence data
 envir = envir_data.parse(0) ## Environmental data
 # print('Number of rows and columns:',growth.shape)
@@ -58,7 +58,6 @@ envir.isna().sum()
 
 ## Interpolate if needed
 # growth = growth.interpolate()
-
 
 
 # =============================================================================
@@ -84,13 +83,13 @@ growth[['Density','Extension','Calcification']].hist(figsize=(10,4))
 lumin[['G/B']].hist(figsize=(10,4))
 envir[['WF_Helena','WF_Calamar','HadISST','SOI','AMO']].hist(figsize=(10,4))
 '''
-Shapiro Results
+Shapiro Results (1954-2015)
 -------------------------------------
 Variable      | Statistic | p-value
 --------------|----------------------
-Density       |  0.97     |  0.000 *
+Density       |  0.99     |  0.000 *
 Extension     |  0.96     |  0.000 *
-Calcification |  0.96     |  0.000 *
+Calcification |  0.97     |  0.000 *
 G/B           |  0.99     |  0.001 *
 WF_Helena     |  0.96     |  0.000 *
 WF_Calamar    |  0.98     |  0.000 *
@@ -106,12 +105,12 @@ AMO           |  0.99     |  0.013 *
 # Test stationary
 # =============================================================================
 ## A stationary time series is one whose statistical properties do not change over time
-## If p < 0.05, time series is stationary
+## If p < 0.05, time series is stationary (there are trends)
 from statsmodels.tsa.stattools import adfuller
 
-# result = adfuller(growth["Density"])
+result = adfuller(growth["Calcification"])
 # result = adfuller(lumin["G/B"])
-result = adfuller(envir["SOI"])
+# result = adfuller(envir["SOI"])
 print('Statistic', result[0])   # statistic
 print('p-value', result[1])   # p-value
 
@@ -120,9 +119,9 @@ Stationary Results
 -------------------------------------
 Variable      | Statistic | p-value
 --------------|----------------------
-Density       | -2.65     |  0.081
-Extension     | -2.46     |  0.124
-Calcification | -2.28     |  0.176
+Density       | -2.50     |  0.117
+Extension     | -4.61     |  0.000 *
+Calcification | -5.00     |  0.000 *
 G/B           | -3.26     |  0.016 *
 WF_Helena     | -2.58     |  0.097
 WF_Calamar    | -6.27     |  0.000 *
@@ -138,8 +137,36 @@ AMO           | -2.13     |  0.231
 # =============================================================================
 from statsmodels.tsa.seasonal import seasonal_decompose
 
-decomp = seasonal_decompose(envir["HadISST"], period=12)
-decomp.plot()
+## Select dataset and invert df
+# sdata = lumin["G/B"].iloc[::-1].reset_index(drop=True)
+sdata = growth["Calcification"].iloc[0:744].iloc[::-1].reset_index(drop=True)
+## Decompose
+decomp = seasonal_decompose(sdata, period=12)
+fig = decomp.plot()
+## Change marker size of residual plot
+axes = fig.get_axes()
+for line in axes[3].get_lines():
+    line.set_markersize(2)
+# Loop through subplots 0, 1, and 2 to change line width
+for i in [0,1,2]:
+    ax = axes[i]
+    # Update the width for all lines inside this specific subplot
+    for line in ax.get_lines():
+        line.set_linewidth(1.0)  # Change 3.5 to your desired thickness
+## Change format of x-axis to dates:
+# 1. Generate the calendar labels matching your data length (e.g., starting Jan 2023)
+date_labels = pd.date_range(start='1954-01-01', periods=len(sdata), freq='MS').strftime('%Y')
+# 2. Get the bottom subplot (Index 3)
+axes = fig.get_axes()
+bottom_ax = axes[3]
+# 3. Map your integer positions to your date strings (showing every 6th month to avoid crowding)
+tick_intervals = range(0, len(sdata), 120)
+bottom_ax.set_xticks(tick_intervals)
+bottom_ax.set_xticklabels([date_labels[i] for i in tick_intervals], rotation=0)
+
+plt.show()
+
+fig.savefig(dir+'\\figE1_Calcification_monthly.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
 
 
 # =============================================================================
@@ -359,7 +386,6 @@ Autocorrelation after removing seasonality on residuals:
 *** Autocorrelation is still high.
 '''
 
-
 # =============================================================================
 # Pearson Correlation
 # =============================================================================
@@ -397,8 +423,6 @@ Correlations with High sginificance, but low coefficient.
 from statsmodels.tsa.stattools import ccf
 
 cross = ccf(envir_det["HadISST"], growth_det["Density"])
-
-
 
 
 # =============================================================================
@@ -445,7 +469,6 @@ def mlr(x_df, y_df, x_vars, y_vars):
         ## Check autocorrelation of residuals
         plot_acf(model.resid, lags=36)
 
-
 mlr(envir_det, growth_det, envir_vars2, growth_vars2)
 '''
 Residuals are autocorrelated. So, go to the next step
@@ -481,7 +504,6 @@ p < 0.05. This suggest is better to inspect GAMM in R.
 '''
 
 
-
 # =============================================================================
 # SARIMAX
 # =============================================================================
@@ -504,6 +526,7 @@ sarimax_run(envir_det.sort_values(by='Y.M', ascending=False),
           growth_det.sort_values(by='Y.M.', ascending=False), 
           envir_vars2, growth_vars2)
 
+
 # =============================================================================
 # Generalized Additive Model (GAM)
 # =============================================================================
@@ -525,6 +548,11 @@ def gam_run(x_df, y_df, x_vars, y_vars):
 gam_run(envir_det.sort_values(by='Y.M', ascending=False), 
           growth_det.sort_values(by='Y.M.', ascending=False), 
           envir_vars2, growth_vars2)
+
+
+
+##### Hasta aqui hice, lo de abajo son cosas viejas....
+
 
 # =============================================================================
 # ## Get data for the respective period 1982-2015:
