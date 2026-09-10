@@ -85,27 +85,27 @@ envir[['WF_Helena','WF_Calamar','HadISST','SOI','AMO']].hist(figsize=(10,4))
 '''
 Shapiro Results (1954-2015)
 -------------------------------------
-Variable      | Statistic | p-value
---------------|----------------------
-Density       |  0.99     |  0.000 *
-Extension     |  0.96     |  0.000 *
-Calcification |  0.97     |  0.000 *
-G/B           |  0.99     |  0.001 *
-WF_Helena     |  0.96     |  0.000 *
-WF_Calamar    |  0.98     |  0.000 *
-HadISST       |  0.97     |  0.000 *
-SOI           |  0.99     |  0.001 *
-AMO           |  0.99     |  0.013 *
+|Variable      | Statistic | p-value  |
+|--------------|-----------|----------|
+|Density       |  0.99     |  0.000 * |
+|Extension     |  0.96     |  0.000 * |
+|Calcification |  0.97     |  0.000 * |
+|G/B           |  0.99     |  0.001 * |
+|WF_Helena     |  0.96     |  0.000 * |
+|WF_Calamar    |  0.98     |  0.000 * |
+|HadISST       |  0.97     |  0.000 * |
+|SOI           |  0.99     |  0.001 * |
+|AMO           |  0.99     |  0.013 * |
 -------------------------------------
 *There is no normality for all variables.
 '''
 
 
 # =============================================================================
-# Test stationary
+# Test stationary - Augmented Dickey-Fuller (ADF) test
 # =============================================================================
 ## A stationary time series is one whose statistical properties do not change over time
-## If p < 0.05, time series is stationary (there are trends)
+## If p < 0.05, time series is stationary (there are no trends)
 from statsmodels.tsa.stattools import adfuller
 
 result = adfuller(growth["Calcification"])
@@ -117,18 +117,18 @@ print('p-value', result[1])   # p-value
 '''
 Stationary Results
 -------------------------------------
-Variable      | Statistic | p-value
---------------|----------------------
-Density       | -2.50     |  0.117
-Extension     | -4.61     |  0.000 *
-Calcification | -5.00     |  0.000 *
-G/B           | -3.26     |  0.016 *
-WF_Helena     | -2.58     |  0.097
-WF_Calamar    | -6.27     |  0.000 *
-HadISST       | -4.55     |  0.000 *
-SOI           | -7.48     |  0.000 *
-AMO           | -2.13     |  0.231
--------------------------------------
+|Variable      | Statistic | p-value  |
+|--------------|-----------|----------|
+|Density       | -2.50     |  0.117   |
+|Extension     | -4.61     |  0.000 * |
+|Calcification | -5.00     |  0.000 * |
+|G/B           | -3.26     |  0.016 * |
+|WF_Helena     | -2.58     |  0.097   |
+|WF_Calamar    | -6.27     |  0.000 * |
+|HadISST       | -4.55     |  0.000 * |
+|SOI           | -7.48     |  0.000 * |
+|AMO           | -2.13     |  0.231   |
+|-------------------------------------|
 * Non stationary time-series
 '''
 
@@ -186,16 +186,16 @@ plt.show()
 ## Durbin-watson test: autocorrelation test at lag=1
 from statsmodels.stats.stattools import durbin_watson
 
-durbin_watson(growth["Calcification"])
+durbin_watson(growth["Extension"])
 durbin_watson(lumin["G/B"])
 durbin_watson(envir["AMO"])
 '''
 * Durbin-Watson test at lag=1, autocorrelation is important at values < 2
 * Values > 2 indicates no autocorrelation.
 
-Density       = 0.005 *
-Extension     = 0.090 *
-Calcification = 0.085 *
+Density       = 0.004 *
+Extension     = 0.080 *
+Calcification = 0.072 *
 G/B           = 0.000 *
 WF_Helena     = 0.051 *
 WF_Calamar    = 0.049 *

@@ -12,10 +12,10 @@
 
 ## Preliminary tests using raw data (no transformations or treatments)
 
-### Normality test (raw data)
-
+### Normality test
 **Test:** Shapiro-Wilk test for normality \
-**Interpretation:** If p < 0.05, then the distribution is non-normal
+**Hypothesis:** If p < 0.05, then the distribution is non-normal \
+**Result:** The distribution of all variables are non-normal
 
 |Variable      | Statistic | p-value  |
 |--------------|-----------|----------|
@@ -29,6 +29,10 @@
 |SOI           |  0.99     |  0.001 * |
 |AMO           |  0.99     |  0.013 * |
 
+### Stationary test
+**Test:** Augmented Dickey-Fuller (ADF) test \
+**Hypothesis:** If p < 0.05, then the time series is stationary (no long-term trends) \
+**Result:** Extension, calcification, G/B, WF_Calamar, SST, and SOI time series are stationary.
 
 |Variable      | Statistic | p-value  |
 |--------------|-----------|----------|
@@ -41,3 +45,28 @@
 |HadISST       | -4.55     |  0.000 * |
 |SOI           | -7.48     |  0.000 * |
 |AMO           | -2.13     |  0.231   |
+
+### Autocorrelation at lag 1
+**Test:** Durbin–Watson test \
+**Hypothesis:** The d value lies between 0 and 4. Autocorrelation is higher as it gets closer to zero. As a rule of thumb values < 2 indicate that autocorrelation exist \
+**Result:** All values are < 1, indicating high autocorrelations.
+
+|Variable      | d      |
+|--------------|--------|
+|Density       | 0.004 *|
+|Extension     | 0.080 *|
+|Calcification | 0.072 *|
+|G/B           | 0.000 *|
+|WF_Helena     | 0.051 *|
+|WF_Calamar    | 0.049 *|
+|HadISST       | 0.000 *|
+|SOI           | 0.690 *|
+|AMO           | 0.141 *|
+
+### Seasonality
+The monthly time series data shows strong seasonality.
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE1_Density_monthly.tiff" width="600">
+</p>
+
+## Data treatment
