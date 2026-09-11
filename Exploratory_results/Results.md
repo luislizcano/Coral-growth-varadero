@@ -70,3 +70,11 @@ The monthly time series data shows strong seasonality.
 </p>
 
 ## Data treatment
+
+The monthly time series data were detrended (or deseasonalized), to remove the seasonal effects on the trend and to reduce autocorrelations.
+However, autocorrelation still exists (for example, until lag 25 for sekeletal density as shown below).
+
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density_monthly.svg" width="600">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density-detr_monthly.svg" width="600">
+</p>

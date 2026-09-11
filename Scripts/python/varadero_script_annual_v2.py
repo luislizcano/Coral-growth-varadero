@@ -139,7 +139,7 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 
 ## Select dataset and invert df
 # sdata = lumin["G/B"].iloc[::-1].reset_index(drop=True)
-sdata = growth["Calcification"].iloc[0:744].iloc[::-1].reset_index(drop=True)
+sdata = growth["Density"].iloc[0:744].iloc[::-1].reset_index(drop=True)
 ## Decompose
 decomp = seasonal_decompose(sdata, period=12)
 fig = decomp.plot()
@@ -177,11 +177,13 @@ fig.savefig(dir+'\\figE1_Calcification_monthly.tiff', format='tiff', dpi=300,bbo
 ## the blue area, it means that lag has a statistically significant correlation
 from statsmodels.graphics.tsaplots import plot_acf
 
-plot_acf(growth["Density"], lags=36)
+fig = plot_acf(growth["Density"], lags=36)
 plt.show()
 
 plot_acf(envir["HadISST"], lags=36)
 plt.show()
+
+fig.savefig(dir+'\\figE2_ACF_Density_monthly.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
 
 ## Durbin-watson test: autocorrelation test at lag=1
 from statsmodels.stats.stattools import durbin_watson
@@ -192,7 +194,8 @@ durbin_watson(envir["AMO"])
 '''
 * Durbin-Watson test at lag=1, autocorrelation is important at values < 2
 * Values > 2 indicates no autocorrelation.
-
+|Variable      | d      |
+|--------------|--------|
 Density       = 0.004 *
 Extension     = 0.080 *
 Calcification = 0.072 *
@@ -222,9 +225,37 @@ def detrend(df, cols):
         )
     return df
 
-growth_det = detrend(growth, ['Density','Extension','Calcification']).iloc[0:744,:]
+growth_det = detrend(growth, ['Density','Extension','Calcification'])#.iloc[0:744,:]
 lumin_det = detrend(lumin, ['G/B'])
 envir_det = detrend(envir, ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
+
+# =============================================================================
+# Test Autocorrelations
+# =============================================================================
+## plot with 36 lags
+fig = plot_acf(growth_det["Density_anom"], lags=36)
+plt.show()
+fig.savefig(dir+'\\figE2_ACF_Density-detr_monthly.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
+
+## at lag=1
+durbin_watson(growth_det["Calcification_anom"])
+durbin_watson(lumin_det["G/B_anom"])
+durbin_watson(envir_det["WF_Helena_anom"])
+'''
+* Durbin-Watson test at lag=1, autocorrelation is important at values < 2
+* Values > 2 indicates no autocorrelation.
+|Variable      | d      |
+|--------------|--------|
+Density       = 0.049 *
+Extension     = 0.653 *
+Calcification = 0.683 *
+G/B           = 0.105 *
+WF_Helena     = 0.157 *
+WF_Calamar    = 0.249 *
+HadISST       = 0.373 *
+SOI           = 0.703 *
+AMO           = 0.136 *
+'''
 
 # =============================================================================
 # Pearson Correlation
@@ -347,7 +378,14 @@ plt.scatter(envir_det2['WF_Helena_anom'], lumin_det2['G/B_anom'])
 # OPTION B - Residuals
 # Time-series detrending (removing seasonality)
 # =============================================================================
+'''
+Residual correlation is appropriate if your question is:
+"Are unusually warm months associated with unusually high or low skeletal 
+density, independent of seasonality and long-term trend?"
 
+It is less appropriate if your question is:
+    "Does long-term warming explain long-term changes in skeletal density?"
+'''
 from statsmodels.tsa.stattools import acf
 
 def resid_det(df, cols):
@@ -363,7 +401,7 @@ def resid_det(df, cols):
     df_residuals.dropna(inplace=True)
     return df_residuals
 
-growth_resid = resid_det(growth.iloc[0:744,:],['Density','Extension','Calcification'])
+growth_resid = resid_det(growth,['Density','Extension','Calcification'])
 lumin_resid = resid_det(lumin,['G/B'])
 envir_resid = resid_det(envir,['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
 # Test if residuals still have autocorrelation using Autocorrelation Function (ACF)
