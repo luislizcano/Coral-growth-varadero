@@ -66,7 +66,7 @@
 ### Seasonality
 The monthly time series data shows strong seasonality.
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE1_Density_monthly.tiff" width="600">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE1_Density_monthly.svg" width="600">
 </p>
 
 ## Data treatment
