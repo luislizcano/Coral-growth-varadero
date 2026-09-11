@@ -230,7 +230,7 @@ lumin_det = detrend(lumin, ['G/B'])
 envir_det = detrend(envir, ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
 
 # =============================================================================
-# Test Autocorrelations
+# A. Test Autocorrelations
 # =============================================================================
 ## plot with 36 lags
 fig = plot_acf(growth_det["Density_anom"], lags=36)
@@ -258,7 +258,79 @@ AMO           = 0.136 *
 '''
 
 # =============================================================================
-# Pearson Correlation
+# A. Examine Normality
+# =============================================================================
+# If p < 0.05, assume non-normal distribution.
+from scipy.stats import shapiro
+
+shapiro(growth_det["Density_anom"])
+shapiro(growth_det["Extension_anom"])
+shapiro(growth_det["Calcification_anom"])
+shapiro(lumin_det["G/B_anom"])
+shapiro(envir_det["WF_Helena_anom"])
+shapiro(envir_det["WF_Calamar_anom"])
+shapiro(envir_det["HadISST_anom"])
+shapiro(envir_det["SOI_anom"])
+shapiro(envir_det["AMO_anom"])
+
+'''
+Shapiro Results (1954-2015)
+-------------------------------------
+|Variable      | Statistic | p-value  |
+|--------------|-----------|----------|
+|Density       |  0.99     |  0.000 * |
+|Extension     |  0.98     |  0.000 * |
+|Calcification |  0.98     |  0.000 * |
+|G/B           |  0.99     |  0.001 * |
+|WF_Helena     |  0.96     |  0.000 * |
+|WF_Calamar    |  0.99     |  0.000 * |
+|HadISST       |  0.97     |  0.168   |
+|SOI           |  0.99     |  0.001 * |
+|AMO           |  0.99     |  0.000 * |
+-------------------------------------
+*There is no normality for all variables.
+'''
+
+# =============================================================================
+# MULTIPLE VARIABLE EVALUATIONS
+# =============================================================================
+
+## Variables
+growth_vars = ['Density','Extension','Calcification']
+lumin_vars = ['G/B']
+envir_vars = ['WF_Helena','WF_Calamar','HadISST','SOI','AMO']
+growth_vars2 = ['Density_anom','Extension_anom','Calcification_anom']
+lumin_vars2 = ['G/B_anom']
+envir_vars2 = ['WF_Helena_anom','WF_Calamar_anom','HadISST_anom','SOI_anom','AMO_anom']
+
+## Predictor correlations
+envir_det[envir_vars2].corr()
+
+## Variance Inflation Factors (VIFs)
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+vif = pd.DataFrame({
+    "Variable": envir_det[envir_vars2].columns,
+    "VIF": [variance_inflation_factor(envir_det[envir_vars2].values, i)
+            for i in range(envir_det[envir_vars2].shape[1])] })
+print(vif)
+'''
+VIF < 5: generally acceptable
+VIF between 5 and 10: moderate multicollinearity.
+VIF > 10: severe multicollinearity.
+
+|          Variable |     VIF  |
+|-------------------|----------|
+|   WF_Helena_anom  | 1.902295 |
+|  WF_Calamar_anom  | 2.281343 |
+|     HadISST_anom  | 1.975874 |
+|         SOI_anom  | 1.456005 |
+|         AMO_anom  | 2.056262 |
+'''
+
+
+# =============================================================================
+# A. Pearson Correlation
 # =============================================================================
 from scipy.stats import pearsonr
 
@@ -372,7 +444,8 @@ Calcification | 0.00,0.927  | 0.07,0.170  | 0.15,0.004  | 0.16,0.003 | 0.32,<0.0
 G/B           | 0.17,0.001  | 0.30,<0.001 |-0.04,0.442  | 0.23,<0.001| 0.23,<0.001 |
 ------------------------------------------------------------------------------------
 '''
-plt.scatter(envir_det2['WF_Helena_anom'], lumin_det2['G/B_anom'])
+plt.scatter(envir_det['HadISST_anom'], growth_det['Density_anom'])
+
 
 # =============================================================================
 # OPTION B - Residuals

@@ -72,9 +72,38 @@ The monthly time series data shows strong seasonality.
 ## Data treatment
 
 The monthly time series data were detrended (or deseasonalized), to remove the seasonal effects on the trend and to reduce autocorrelations.
-However, autocorrelation still exists (for example, until lag 25 for sekeletal density as shown below).
+However, autocorrelation still exists (for example, until lag 25 for sekeletal density as shown below; before and after deseasonalization).
+Therefore
 
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density_monthly.svg" width="600">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density-detr_monthly.svg" width="600">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density_monthly.svg" width="400">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density-detr_monthly.svg" width="400">
 </p>
+
+The data distributions are still not (any) normal after detrending, except for SST. In overall, there is no linear relationship among variable pairs, after plotting.
+The data **violates** the assumptions of normality and linearity for Pearson correlation tests.
+
+|Variable      | Statistic | p-value  |
+|--------------|-----------|----------|
+|Density       |  0.99     |  0.000 * |
+|Extension     |  0.96     |  0.000 * |
+|Calcification |  0.97     |  0.000 * |
+|G/B           |  0.99     |  0.001 * |
+|WF_Helena     |  0.96     |  0.000 * |
+|WF_Calamar    |  0.98     |  0.000 * |
+|HadISST       |  0.97     |  0.000 * |
+|SOI           |  0.99     |  0.001 * |
+|AMO           |  0.99     |  0.013 * |
+
+The group of environmental variables were tested for multicollinearity using the variance inflation factor (VIF).
+The VIF values were below 5, indicating there is no strong collinearity among variables.
+
+|          Variable |     VIF  |
+|-------------------|----------|
+|   WF_Helena_anom  | 1.902295 |
+|  WF_Calamar_anom  | 2.281343 |
+|     HadISST_anom  | 1.975874 |
+|         SOI_anom  | 1.456005 |
+|         AMO_anom  | 2.056262 |
+
+However, the data **violates** the normality and autocorrelations (and potentially the homoscedasticity) assumptions for OLS linear regression (or Multiple linear regressions).
