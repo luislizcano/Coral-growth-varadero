@@ -71,10 +71,71 @@ The monthly time series data shows strong seasonality.
 
 ## Data treatment
 
+## Detrending
 The monthly time series data were detrended (or deseasonalized), to remove the seasonal effects on the trend and to reduce autocorrelations.
 However, autocorrelation still exists (for example, until lag 25 for sekeletal density as shown below; before and after deseasonalization).
+Therefore
 
 <p align="center">
 <img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density_monthly.svg" width="400">
 <img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density-detr_monthly.svg" width="400">
 </p>
+
+### Normality
+The data distributions are still not (any) normal after detrending, except for SST. In overall, there is no linear relationship among variable pairs, after plotting.
+The data **violates** the assumptions of normality and linearity for Pearson correlation tests.
+
+|Variable      | Statistic | p-value  |
+|--------------|-----------|----------|
+|Density       |  0.99     |  0.000 * |
+|Extension     |  0.98     |  0.000 * |
+|Calcification |  0.98     |  0.000 * |
+|G/B           |  0.99     |  0.001 * |
+|WF_Helena     |  0.96     |  0.000 * |
+|WF_Calamar    |  0.99     |  0.000 * |
+|HadISST       |  0.97     |  0.168   |
+|SOI           |  0.99     |  0.001 * |
+|AMO           |  0.99     |  0.000 * |
+
+### Collinearity
+The group of environmental variables were tested for multicollinearity using the variance inflation factor (VIF).
+The VIF values were below 5, indicating there is no strong collinearity among variables.
+
+|          Variable |     VIF  |
+|-------------------|----------|
+|   WF_Helena_anom  | 1.902295 |
+|  WF_Calamar_anom  | 2.281343 |
+|     HadISST_anom  | 1.975874 |
+|         SOI_anom  | 1.456005 |
+|         AMO_anom  | 2.056262 |
+
+However, the data **violates** the normality and autocorrelations (and potentially the homoscedasticity) assumptions for OLS linear regression (or Multiple linear regressions).
+
+### Pearson correlations
+For exploratory purposes, the correlations were ran using detrended monthly data for three periods: the whole period 1954-2015, and the before and after the dredging events of 1984.
+Interpretations may be biased due to assumptions are not met. Left value is correlation and right value is p-value.
+
+| 1954-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+|---------------|-------------|-------------|-------------|------------|-------------|
+|Density        |-0.31,<0.001 | 0.12,0.002  |-0.14,<0.001 | 0.12,0.001 |-0.21,<0.001 |
+|Extension      | 0.13,<0.001 |-0.01,0.847  | 0.18,<0.001 | 0.09,0.011 | 0.24,<0.001 |
+|Calcification  |-0.07,0.054  | 0.05,0.178  | 0.06,0.080  | 0.15,<0.001| 0.09,0.013  |
+|G/B            |-0.13,0.001  | 0.33,<0.001 |-0.36,<0.001 | 0.21,<0.001|-0.25,<0.001 |
+
+
+|1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+|--------------|-------------|-------------|-------------|------------|-------------|
+|Density       | 0.02,0.679  | 0.08,0.125  | 0.05,0.326  | 0.19,<0.001| 0.07,0.208  |
+|Extension     |-0.01,0.833  | 0.03,0.536  | 0.11,0.033  | 0.07,0.199 | 0.30,<0.001 |
+|Calcification | 0.00,0.927  | 0.07,0.170  | 0.15,0.004  | 0.16,0.003 | 0.32,<0.001 |
+|G/B           | 0.17,0.001  | 0.30,<0.001 |-0.04,0.442  | 0.23,<0.001| 0.23,<0.001 |
+
+
+|1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+|--------------|-------------|-------------|-------------|------------|-------------|
+|Density       | 0.01,0.825  | 0.18,<0.001 |-0.08,0.138  |-0.01,0.919 |-0.22,<0.001 |
+|Extension     | 0.03,0.516  |-0.04,0.465  | 0.16,0.002  | 0.15,0.004 | 0.10,0.056  |
+|Calcification | 0.01,0.797  | 0.03,0.584  | 0.05,0.307  | 0.12,0.016 |-0.05,0.326  |
+|G/B           | 0.24,<0.001 | 0.40,<0.001 |-0.44,<0.001 | 0.18,<0.001|-0.38,<0.001 |
+
+

@@ -328,7 +328,6 @@ VIF > 10: severe multicollinearity.
 |         AMO_anom  | 2.056262 |
 '''
 
-
 # =============================================================================
 # A. Pearson Correlation
 # =============================================================================
@@ -537,34 +536,6 @@ cross = ccf(envir_det["HadISST"], growth_det["Density"])
 
 
 # =============================================================================
-# MULTIPLE VARIABLE EVALUATIONS
-# =============================================================================
-
-## Predictor correlations
-envir_det[envir_vars2].corr()
-
-## Variance Inflation Factors (VIFs)
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-
-vif = pd.DataFrame({
-    "Variable": envir_det[envir_vars2].columns,
-    "VIF": [variance_inflation_factor(envir_det[envir_vars2].values, i)
-            for i in range(envir_det[envir_vars2].shape[1])] })
-print(vif)
-'''
-VIF < 5: generally acceptable
-VIF between 5 and 10: moderate multicollinearity.
-VIF > 10: severe multicollinearity.
-
-          Variable       VIF
-0   WF_Helena_anom  1.902295
-1  WF_Calamar_anom  2.281343
-2     HadISST_anom  1.975874
-3         SOI_anom  1.456005
-4         AMO_anom  2.056262
-'''
-
-# =============================================================================
 # MULTIPLE LINEAR REGRESSION
 # =============================================================================
 import statsmodels.api as sm
@@ -594,6 +565,7 @@ determined not only with the ACF, but looking at the AIC an BIC values, with
 lower values prefered.
 Here, the Density showed autocorrelations at lag ~16, but the extension and 
 calcification at lag ~5. The Density may required AR with rho ~5, maybe.
+**I think this also requires linearity, which in our case the data it is not.
 '''
 
 from statsmodels.regression.linear_model import GLSAR
