@@ -165,7 +165,3 @@ Variables such as Extension, WF_Helena, and AMO have clearly nonlinear trends.
 |HadISST       |  28.1     | edf=2.8; p<0.001| edf=9.6; p<0.001 | 0.84 |
 |SOI           |  0.14     | edf=2.1; p=0.17 | edf=0.0; p=0.71  | 0.03 |
 |AMO           | -0.02     | edf=4.1; p<0.001| edf=5.6; p<0.001 | 0.51 |
-
-Monthly data tend to be complex to work, specially if we are working with coral data that have monthly gaps filled with linear interpolations.
-The temporal resolution is not enough due to radiography resolution (pixel size). However, for the luminescence it is better, which we can use for
-the wavelet analysis.
