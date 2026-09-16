@@ -1,4 +1,4 @@
-# Exploratory results
+# Exploratory results (Monthly data)
 
 ## Monthly time series (1954-2015)
 * Skeletal density (g cm<sup>-3</sup>)
@@ -31,7 +31,7 @@
 
 ### Stationary test
 **Test:** Augmented Dickey-Fuller (ADF) test \
-**Hypothesis:** If p < 0.05, then the time series is stationary (no long-term trends) \
+**Hypothesis:** If p < 0.05, then the time series is stationary (there is no trend or trend-stationary) \
 **Result:** Extension, calcification, G/B, WF_Calamar, SST, and SOI time series are stationary.
 
 |Variable      | Statistic | p-value  |

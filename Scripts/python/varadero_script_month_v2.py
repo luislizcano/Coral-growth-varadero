@@ -129,7 +129,7 @@ Stationary Results
 |SOI           | -7.48     |  0.000 * |
 |AMO           | -2.13     |  0.231   |
 |-------------------------------------|
-* Non stationary time-series
+* Stationary time-series (there is no trend or trend-stationary)
 '''
 
 # =============================================================================

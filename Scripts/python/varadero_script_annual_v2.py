@@ -38,16 +38,16 @@ from functions import mean_yr,mean_cols,STDA,STDAidx,climat,linreg,mean_range,\
                 stats_all,detect_changes,check_assumptions
 
 ## Load data
-coral_data = pd.ExcelFile('Data_processed\\coral_growth_monthly_v2.xlsx')
-lumin_data = pd.ExcelFile('Data_processed\\coral_lumn_monthly.xlsx')
-envir_data = pd.ExcelFile('Data_processed\\env_monthly.xlsx')
+coral_data = pd.ExcelFile('Data_processed\\coral_growth_yr_v2.xlsx')
+lumin_data = pd.ExcelFile('Data_processed\\coral_lumn_yr.xlsx')
+envir_data = pd.ExcelFile('Data_processed\\env_yr.xlsx')
 
 ## Check if the file has different sheets
 lumin_data.sheet_names
 
 ## You can load data by number of sheet
-growth = coral_data.parse(1).iloc[0:744]#.drop([96,97,98]).reset_index(drop=True) ## Growth data
-lumin = lumin_data.parse(1) ## Luminescence data
+growth = coral_data.parse(1).iloc[0:62]#.drop([96,97,98]).reset_index(drop=True) ## Growth data
+lumin = lumin_data.parse(0).iloc[0:62] ## Luminescence data
 envir = envir_data.parse(0) ## Environmental data
 # print('Number of rows and columns:',growth.shape)
 
@@ -84,20 +84,20 @@ lumin[['G/B']].hist(figsize=(10,4))
 envir[['WF_Helena','WF_Calamar','HadISST','SOI','AMO']].hist(figsize=(10,4))
 '''
 Shapiro Results (1954-2015)
--------------------------------------
-|Variable      | Statistic | p-value  |
-|--------------|-----------|----------|
-|Density       |  0.99     |  0.000 * |
-|Extension     |  0.96     |  0.000 * |
-|Calcification |  0.97     |  0.000 * |
-|G/B           |  0.99     |  0.001 * |
-|WF_Helena     |  0.96     |  0.000 * |
-|WF_Calamar    |  0.98     |  0.000 * |
-|HadISST       |  0.97     |  0.000 * |
-|SOI           |  0.99     |  0.001 * |
-|AMO           |  0.99     |  0.013 * |
--------------------------------------
-*There is no normality for all variables.
+----------------------------------------
+|Variable      | W-Statistic | p-value  |
+|--------------|-------------|----------|
+|Density       |  0.98       |  0.51    |
+|Extension     |  0.97       |  0.14    |
+|Calcification |  0.98       |  0.76    |
+|G/B           |  0.97       |  0.13    |
+|WF_Helena     |  0.93       |  0.002 * | 0.72 (1981-2015)
+|WF_Calamar    |  0.98       |  0.49    |
+|HadISST       |  0.99       |  0.89    |
+|SOI           |  0.98       |  0.28    |
+|AMO           |  0.99       |  0.77    |
+----------------------------------------
+*There is no normality for WF_Helena.
 '''
 
 
@@ -105,69 +105,32 @@ Shapiro Results (1954-2015)
 # Test stationary - Augmented Dickey-Fuller (ADF) test
 # =============================================================================
 ## A stationary time series is one whose statistical properties do not change over time
-## If p < 0.05, time series is stationary (there are no trends)
+## If p < 0.05, time series is stationary (there are no trends or trend-stationary)
 from statsmodels.tsa.stattools import adfuller
 
-result = adfuller(growth["Calcification"])
+# result = adfuller(growth["Calcification"])
 # result = adfuller(lumin["G/B"])
-# result = adfuller(envir["SOI"])
+result = adfuller(envir["AMO"])
 print('Statistic', result[0])   # statistic
 print('p-value', result[1])   # p-value
 
 '''
 Stationary Results
--------------------------------------
-|Variable      | Statistic | p-value  |
-|--------------|-----------|----------|
-|Density       | -2.50     |  0.117   |
-|Extension     | -4.61     |  0.000 * |
-|Calcification | -5.00     |  0.000 * |
-|G/B           | -3.26     |  0.016 * |
-|WF_Helena     | -2.58     |  0.097   |
-|WF_Calamar    | -6.27     |  0.000 * |
-|HadISST       | -4.55     |  0.000 * |
-|SOI           | -7.48     |  0.000 * |
-|AMO           | -2.13     |  0.231   |
-|-------------------------------------|
-* Non stationary time-series
+------------------------------------------
+|Variable      | DF-Statistic | p-value  |
+|--------------|--------------|----------|
+|Density       | -3.22        |  0.019 * |
+|Extension     | -3.07        |  0.029 * |
+|Calcification | -3.85        |  0.002 * |
+|G/B           | -3.30        |  0.015 * |
+|WF_Helena     | -1.25        |  0.650   | 0.019* (1981-2015)
+|WF_Calamar    | -5.87        |  0.000 * |
+|HadISST       | -4.93        |  0.000 * |
+|SOI           | -5.27        |  0.000 * |
+|AMO           | -1.95        |  0.308   |
+|----------------------------------------|
+* Stationary time-series (there is no trend or trend-stationary)
 '''
-
-# =============================================================================
-# Test Seasonality
-# =============================================================================
-from statsmodels.tsa.seasonal import seasonal_decompose
-
-## Select dataset and invert df
-# sdata = lumin["G/B"].iloc[::-1].reset_index(drop=True)
-sdata = growth["Density"].iloc[0:744].iloc[::-1].reset_index(drop=True)
-## Decompose
-decomp = seasonal_decompose(sdata, period=12)
-fig = decomp.plot()
-## Change marker size of residual plot
-axes = fig.get_axes()
-for line in axes[3].get_lines():
-    line.set_markersize(2)
-# Loop through subplots 0, 1, and 2 to change line width
-for i in [0,1,2]:
-    ax = axes[i]
-    # Update the width for all lines inside this specific subplot
-    for line in ax.get_lines():
-        line.set_linewidth(1.0)  # Change 3.5 to your desired thickness
-## Change format of x-axis to dates:
-# 1. Generate the calendar labels matching your data length (e.g., starting Jan 2023)
-date_labels = pd.date_range(start='1954-01-01', periods=len(sdata), freq='MS').strftime('%Y')
-# 2. Get the bottom subplot (Index 3)
-axes = fig.get_axes()
-bottom_ax = axes[3]
-# 3. Map your integer positions to your date strings (showing every 6th month to avoid crowding)
-tick_intervals = range(0, len(sdata), 120)
-bottom_ax.set_xticks(tick_intervals)
-bottom_ax.set_xticklabels([date_labels[i] for i in tick_intervals], rotation=0)
-
-plt.show()
-
-fig.savefig(dir+'\\figE1_Calcification_monthly.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
-
 
 # =============================================================================
 # Test Autocorrelations
@@ -177,10 +140,10 @@ fig.savefig(dir+'\\figE1_Calcification_monthly.tiff', format='tiff', dpi=300,bbo
 ## the blue area, it means that lag has a statistically significant correlation
 from statsmodels.graphics.tsaplots import plot_acf
 
-fig = plot_acf(growth["Density"], lags=36)
+fig = plot_acf(growth["Calcification"], lags=20)
 plt.show()
 
-plot_acf(envir["HadISST"], lags=36)
+plot_acf(envir["WF_Calamar"], lags=20)
 plt.show()
 
 fig.savefig(dir+'\\figE2_ACF_Density_monthly.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
@@ -188,7 +151,7 @@ fig.savefig(dir+'\\figE2_ACF_Density_monthly.tiff', format='tiff', dpi=300,bbox_
 ## Durbin-watson test: autocorrelation test at lag=1
 from statsmodels.stats.stattools import durbin_watson
 
-durbin_watson(growth["Extension"])
+durbin_watson(growth["Calcification"])
 durbin_watson(lumin["G/B"])
 durbin_watson(envir["AMO"])
 '''
@@ -196,15 +159,16 @@ durbin_watson(envir["AMO"])
 * Values > 2 indicates no autocorrelation.
 |Variable      | d      |
 |--------------|--------|
-Density       = 0.004 *
-Extension     = 0.080 *
-Calcification = 0.072 *
-G/B           = 0.000 *
-WF_Helena     = 0.051 *
-WF_Calamar    = 0.049 *
-HadISST       = 0.000 *
-SOI           = 0.690 *
-AMO           = 0.141 *
+|Density       | 0.006 *|
+|Extension     | 0.020 *|
+|Calcification | 0.026 *|
+|G/B           | 0.000 *|
+|WF_Helena     | 0.060 *|
+|WF_Calamar    | 0.047 *|
+|HadISST       | 0.000 *|
+|SOI           | 1.301 *|
+|AMO           | 0.576 *|
+-------------------------
 '''
 ### Testing autocorrelation at specific lag.
 # from statsmodels.stats.diagnostic import acorr_ljungbox

@@ -1,9 +1,9 @@
-# Exploratory results (Monthly data)
+# Exploratory results (Annual data)
 
 ## Monthly time series (1954-2015)
 * Skeletal density (g cm<sup>-3</sup>)
-* Linear extension (cm mo<sup>-1</sup>)
-* Calcification (g cm<sup>-2</sup> mo<sup>-1</sup>)
+* Linear extension (cm yr<sup>-1</sup>)
+* Calcification (g cm<sup>-2</sup> yr<sup>-1</sup>)
 * Sea surface temperature (HadISST)
 * Water discharge (Sta Helena)(data from 1954-1981 were modeled using Calamar data)
 * Water discharge (Calamar)
@@ -15,59 +15,55 @@
 ### Normality test
 **Test:** Shapiro-Wilk test for normality \
 **Hypothesis:** If p < 0.05, then the distribution is non-normal \
-**Result:** The distribution of all variables are non-normal
+**Result:** The distribution of all variables are normal, except WF_Helena*
 
-|Variable      | Statistic | p-value  |
-|--------------|-----------|----------|
-|Density       |  0.99     |  0.000 * |
-|Extension     |  0.96     |  0.000 * |
-|Calcification |  0.97     |  0.000 * |
-|G/B           |  0.99     |  0.001 * |
-|WF_Helena     |  0.96     |  0.000 * |
-|WF_Calamar    |  0.98     |  0.000 * |
-|HadISST       |  0.97     |  0.000 * |
-|SOI           |  0.99     |  0.001 * |
-|AMO           |  0.99     |  0.013 * |
+|Variable      | W-Statistic | p-value  |
+|--------------|-------------|----------|
+|Density       |  0.98       |  0.51    |
+|Extension     |  0.97       |  0.14    |
+|Calcification |  0.98       |  0.76    |
+|G/B           |  0.97       |  0.13    |
+|WF_Helena     |  0.93       |  0.002* (0.72 for 1981-2015) | 
+|WF_Calamar    |  0.98       |  0.49    |
+|HadISST       |  0.99       |  0.89    |
+|SOI           |  0.98       |  0.28    |
+|AMO           |  0.99       |  0.77    |
 
 ### Stationary test
 **Test:** Augmented Dickey-Fuller (ADF) test \
 **Hypothesis:** If p < 0.05, then the time series is stationary (no long-term trends) \
-**Result:** Extension, calcification, G/B, WF_Calamar, SST, and SOI time series are stationary.
+**Result:** WF_Helena and AMO are non-stationary time series (statistical properties change over time).
 
-|Variable      | Statistic | p-value  |
-|--------------|-----------|----------|
-|Density       | -2.50     |  0.117   |
-|Extension     | -4.61     |  0.000 * |
-|Calcification | -5.00     |  0.000 * |
-|G/B           | -3.26     |  0.016 * |
-|WF_Helena     | -2.58     |  0.097   |
-|WF_Calamar    | -6.27     |  0.000 * |
-|HadISST       | -4.55     |  0.000 * |
-|SOI           | -7.48     |  0.000 * |
-|AMO           | -2.13     |  0.231   |
+|Variable      | DF-Statistic | p-value  |
+|--------------|--------------|----------|
+|Density       | -3.22        |  0.019 * |
+|Extension     | -3.07        |  0.029 * |
+|Calcification | -3.85        |  0.002 * |
+|G/B           | -3.30        |  0.015 * |
+|WF_Helena     | -1.25        |  0.650 (0.019* for 1981-2015) | 
+|WF_Calamar    | -5.87        |  0.000 * |
+|HadISST       | -4.93        |  0.000 * |
+|SOI           | -5.27        |  0.000 * |
+|AMO           | -1.95        |  0.308   |
 
 ### Autocorrelation at lag 1
 **Test:** Durbin–Watson test \
 **Hypothesis:** The d value lies between 0 and 4. Autocorrelation is higher as it gets closer to zero. As a rule of thumb values < 2 indicate that autocorrelation exist \
-**Result:** All values are < 1, indicating high autocorrelations.
+**Result:** All values are < 2, indicating high autocorrelations at lag=1.
 
 |Variable      | d      |
 |--------------|--------|
-|Density       | 0.004 *|
-|Extension     | 0.080 *|
-|Calcification | 0.072 *|
+|Density       | 0.006 *|
+|Extension     | 0.020 *|
+|Calcification | 0.026 *|
 |G/B           | 0.000 *|
-|WF_Helena     | 0.051 *|
-|WF_Calamar    | 0.049 *|
+|WF_Helena     | 0.060 *|
+|WF_Calamar    | 0.047 *|
 |HadISST       | 0.000 *|
-|SOI           | 0.690 *|
-|AMO           | 0.141 *|
+|SOI           | 1.301 *|
+|AMO           | 0.576 *|
 
-### Seasonality
-The monthly time series data shows strong seasonality.
-<p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE1_Density_monthly.svg" width="600">
-</p>
+
 
 ## Data treatment
 
@@ -143,8 +139,8 @@ Interpretations may be biased due to assumptions are not met. Left value is corr
 The GAM allows to fit non-linear trends to data.
 
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE3_GAM_growth_monthly.svg" width="400">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE3_GAM_envir_monthly.svg" width="400">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE4_GAM_growth_annual.svg" width="400">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE4_GAM_envir_annual.svg" width="400">
 </p>
 
 For the long-term trends using GAM, each variable's trend is depending on the time (years) and months. The monthly data have strong seasonal
