@@ -122,8 +122,20 @@ The GAMM allows to fit non-linear trends to data, accounting for autocorrelated 
 
 The response variable was modeled as a smooth function of time using a cubic regression spline, allowing nonlinear temporal trajectories. 
 Temporal dependence among residuals was accounted for using a first-order autoregressive [AR(1)] correlation structure. 
-The model was specified as $$\(Y_t=\beta_0+f(t)+\epsilon_t\)$$, where \(f(t)\) represents the smooth temporal function and residuals 
-followed \(\epsilon_t=\phi\epsilon_{t-1}+\eta_t\). The degree of smoothness was estimated from the data using penalized regression splines.
+The model was specified as $$\(Y_t=\beta_0+f(t)+\epsilon_t\)$$, where $$\(f(t)\)$$ represents the smooth temporal function and residuals 
+followed $$\(\epsilon_t=\phi\epsilon_{t-1}+\eta_t\)$$. The degree of smoothness was estimated from the data using penalized regression splines.
+
+* $\(\Y_t\)$$ = observed annual value at year $$\(t\)$$
+* $$\(\beta_0\)$$ = intercept
+* $$\(f(t)\)$$ = smooth nonlinear function of time estimated using a cubic regression spline
+* $$\(\epsilon_t\)$$ = residual error
+
+The AR(1) structure is:
+
+$$ \epsilon_t = \phi\epsilon_{t-1}+\eta_t $$
+
+where $$\(\phi\)$$ is the estimated lag-1 autocorrelation parameter and $$\(\eta_t\)$$ is an independent error term.
+
 
 <p align="center">
 <img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE4_GAM_growth_annual.svg" width="400">
