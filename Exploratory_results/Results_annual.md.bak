@@ -1,12 +1,12 @@
 # Exploratory results (Annual data)
 
-## Monthly time series (1954-2015)
+## Annual time series (1954-2015)
 * Skeletal density (g cm<sup>-3</sup>)
 * Linear extension (cm yr<sup>-1</sup>)
 * Calcification (g cm<sup>-2</sup> yr<sup>-1</sup>)
 * Sea surface temperature (HadISST)
 * Water discharge (Sta Helena)(data from 1954-1981 were modeled using Calamar data)
-* Water discharge (Calamar)
+* Water discharge (Calamar) (m<sup>3</sup> s<sup>-1</sup>)
 * SOI
 * AMO
 
@@ -49,65 +49,70 @@
 ### Autocorrelation at lag 1
 **Test:** Durbin–Watson test \
 **Hypothesis:** The d value lies between 0 and 4. Autocorrelation is higher as it gets closer to zero. As a rule of thumb values < 2 indicate that autocorrelation exist \
-**Result:** All values are < 1, indicating high autocorrelations.
+**Result:** All values are < 2, indicating high autocorrelations at lag=1.
 
 |Variable      | d      |
 |--------------|--------|
-|Density       | 0.004 *|
-|Extension     | 0.080 *|
-|Calcification | 0.072 *|
+|Density       | 0.006 *|
+|Extension     | 0.020 *|
+|Calcification | 0.026 *|
 |G/B           | 0.000 *|
-|WF_Helena     | 0.051 *|
-|WF_Calamar    | 0.049 *|
+|WF_Helena     | 0.060 *|
+|WF_Calamar    | 0.047 *|
 |HadISST       | 0.000 *|
-|SOI           | 0.690 *|
-|AMO           | 0.141 *|
+|SOI           | 1.301 *|
+|AMO           | 0.576 *|
 
-### Seasonality
-The monthly time series data shows strong seasonality.
-<p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE1_Density_monthly.svg" width="600">
-</p>
+
 
 ## Data treatment
 
-## Detrending
-The monthly time series data were detrended (or deseasonalized), to remove the seasonal effects on the trend and to reduce autocorrelations.
-However, autocorrelation still exists (for example, until lag 25 for sekeletal density as shown below; before and after deseasonalization).
-Therefore
-
-<p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density_monthly.svg" width="400">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE2_ACF_Density-detr_monthly.svg" width="400">
-</p>
+## Detrending (Z-scores)
+The time series data were detrended or standardized (z-scores or STDA) to remove the long-term trend, visualize anomalies, and try to reduce autocorrelations.
 
 ### Normality
-The data distributions are still not (any) normal after detrending, except for SST. In overall, there is no linear relationship among variable pairs, after plotting.
-The data **violates** the assumptions of normality and homoscedasticity for Pearson correlation tests.
+The normality test showed identical results to those from raw data above. Only WF_Helena is not normal.
 
-|Variable      | Statistic | p-value  |
-|--------------|-----------|----------|
-|Density       |  0.99     |  0.000 * |
-|Extension     |  0.98     |  0.000 * |
-|Calcification |  0.98     |  0.000 * |
-|G/B           |  0.99     |  0.001 * |
-|WF_Helena     |  0.96     |  0.000 * |
-|WF_Calamar    |  0.99     |  0.000 * |
-|HadISST       |  0.97     |  0.168   |
-|SOI           |  0.99     |  0.001 * |
-|AMO           |  0.99     |  0.000 * |
+|Variable      | W-Statistic | p-value  |
+|--------------|-------------|----------|
+|Density       |  0.98       |  0.51    |
+|Extension     |  0.97       |  0.14    |
+|Calcification |  0.98       |  0.76    |
+|G/B           |  0.97       |  0.13    |
+|WF_Helena     |  0.93       |  0.002 * | 0.72 (1981-2015)
+|WF_Calamar    |  0.98       |  0.49    |
+|HadISST       |  0.99       |  0.89    |
+|SOI           |  0.98       |  0.28    |
+|AMO           |  0.99       |  0.77    |
+
+### Autocorrelation at lag 1
+**Test:** Durbin–Watson test \
+**Hypothesis:** The d value lies between 0 and 4. Autocorrelation is higher as it gets closer to zero. As a rule of thumb values < 2 indicate that autocorrelation exist \
+**Result:** The d values were higher than using raw data. However, all values are still below < 2, indicating high autocorrelations at lag=1.
+
+|Variable      | d      |
+|--------------|--------|
+|Density       | 0.637 *|
+|Extension     | 1.586 *|
+|Calcification | 1.851 *|
+|G/B           | 0.526 *|
+|WF_Helena     | 0.490 *|
+|WF_Calamar    | 1.419 *|
+|HadISST       | 1.115 *|
+|SOI           | 1.301 *|
+|AMO           | 0.576 *|
 
 ### Collinearity
 The group of environmental variables were tested for multicollinearity using the variance inflation factor (VIF).
 The VIF values were below 5, indicating there is no strong collinearity among variables.
 
-|          Variable |     VIF  |
-|-------------------|----------|
-|   WF_Helena_anom  | 1.902295 |
-|  WF_Calamar_anom  | 2.281343 |
-|     HadISST_anom  | 1.975874 |
-|         SOI_anom  | 1.456005 |
-|         AMO_anom  | 2.056262 |
+|     Variable | VIF  |
+|--------------|------|
+|   WF_Helena  | 1.94 |
+|  WF_Calamar  | 2.83 |
+|     HadISST  | 3.03 |
+|         SOI  | 2.12 |
+|         AMO  | 3.19 |
 
 However, the data **violates** the normality and autocorrelations (and potentially the homoscedasticity) assumptions for OLS linear regression (or Multiple linear regressions).
 
@@ -115,28 +120,30 @@ However, the data **violates** the normality and autocorrelations (and potential
 For exploratory purposes, the correlations were ran using detrended monthly data for three periods: the whole period 1954-2015, and the before and after the dredging events of 1984.
 Interpretations may be biased due to assumptions are not met. Left value is correlation and right value is p-value.
 
-| **1954-2015** | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-|---------------|-------------|-------------|-------------|------------|-------------|
-|Density        |-0.31, <0.001 | 0.12, 0.002  |-0.14, <0.001 | 0.12, 0.001 |-0.21, <0.001 |
-|Extension      | 0.13, <0.001 |-0.01, 0.847  | 0.18, <0.001 | 0.09, 0.011 | 0.24, <0.001 |
-|Calcification  |-0.07, 0.054  | 0.05, 0.178  | 0.06, 0.080  | 0.15, <0.001| 0.09, 0.013  |
-|G/B            |-0.13, 0.001  | 0.33, <0.001 |-0.36, <0.001 | 0.21, <0.001|-0.25, <0.001 |
+ 1954-2015    | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       |-0.39,0.002 *| 0.11,0.374  |-0.20,0.126  | 0.20,0.114 |-0.28,0.026 *|
+Extension     | 0.29,0.023 *|-0.03,0.830  | 0.28,0.025 *| 0.09,0.470 | 0.45,<0.001*|
+Calcification |-0.09,0.481  | 0.09,0.487  | 0.01,0.927  | 0.27,0.034*| 0.10,0.427  |
+G/B           |-0.27,0.032 *| 0.32,0.011 *|-0.43,<0.001*| 0.19,0.136 |-0.34,0.008 *|
+------------------------------------------------------------------------------------
 
+------------------------------------------------------------------------------------
+1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       | 0.09,0.651  | 0.09,0.619  | 0.02,0.905  | 0.31,0.099*| 0.03,0.886  |
+Extension     |-0.05,0.807  |-0.01,0.977  | 0.17,0.366  | 0.17,0.369 | 0.55,<0.002*|
+Calcification | 0.05,0.780  | 0.10,0.600  | 0.16,0.404  | 0.40,0.030*| 0.46,0.010 *|
+G/B           | 0.23,0.229  | 0.25,0.184  | 0.06,0.772  | 0.28,0.135 | 0.29,0.114  |
 
-|**1954-1983** | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-|--------------|-------------|-------------|-------------|------------|-------------|
-|Density       | 0.02, 0.679  | 0.08, 0.125  | 0.05, 0.326  | 0.19, <0.001| 0.07, 0.208  |
-|Extension     |-0.01, 0.833  | 0.03, 0.536  | 0.11, 0.033  | 0.07, 0.199 | 0.30, <0.001 |
-|Calcification | 0.00, 0.927  | 0.07, 0.170  | 0.15, 0.004  | 0.16, 0.003 | 0.32, <0.001 |
-|G/B           | 0.17, 0.001  | 0.30, <0.001 |-0.04, 0.442  | 0.23, <0.001| 0.23, <0.001 |
-
-
-|**1984-2015** | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-|--------------|-------------|-------------|-------------|------------|-------------|
-|Density       | 0.01, 0.825  | 0.18, <0.001 |-0.08, 0.138  |-0.01, 0.919 |-0.22, <0.001 |
-|Extension     | 0.03, 0.516  |-0.04, 0.465  | 0.16, 0.002  | 0.15, 0.004 | 0.10, 0.056  |
-|Calcification | 0.01, 0.797  | 0.03, 0.584  | 0.05, 0.307  | 0.12, 0.016 |-0.05, 0.326  |
-|G/B           | 0.24, <0.001 | 0.40, <0.001 |-0.44, <0.001 | 0.18, <0.001|-0.38, <0.001 |
+------------------------------------------------------------------------------------
+1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       |-0.01,0.970  | 0.18,0.336  |-0.06,0.736  | 0.00,0.995 |-0.31,0.085  |
+Extension     | 0.14,0.447  |-0.04,0.824  | 0.22,0.231  | 0.11,0.550 | 0.24,0.182  |
+Calcification | 0.12,0.514  | 0.08,0.648  | 0.03,0.889  | 0.12,0.511 |-0.07,0.697  |
+G/B           | 0.16,0.388  | 0.42,0.018 *|-0.52,0.002 *| 0.09,0.625 |-0.49,0.005 *|
+------------------------------------------------------------------------------------
 
 ### Long-term trends
 **Test:** General additive models (GAM) \
@@ -154,17 +161,17 @@ and the p-value indicates if that trend is significant over time. \
 
 Variables such as Extension, WF_Helena, and AMO have clearly nonlinear trends.
 
-|Variable      | Intercept | Time            | Month            | R2   |
-|--------------|-----------|-----------------|------------------|------|
-|Density       |  0.73     | edf=1.0; p=0.06 | edf=9.7; p<0.001 | 0.55 |
-|Extension     |  0.09     | edf=4.3; p<0.001| edf=9.8; p<0.001 | 0.60 |
-|Calcification |  0.06     | edf=2.8; p=0.008| edf=9.6; p<0.001 | 0.58 |
-|G/B           |  1.01     | edf=2.6; p<0.001| edf=9.5; p<0.001 | 0.75 |
-|WF_Helena     |  290.7    | edf=3.4; p<0.001| edf=9.0; p<0.001 | 0.60 |
-|WF_Calamar    |  7241.8   | edf=1.0; p=0.73 | edf=9.4; p<0.001 | 0.48 |
-|HadISST       |  28.1     | edf=2.8; p<0.001| edf=9.6; p<0.001 | 0.84 |
-|SOI           |  0.14     | edf=2.1; p=0.17 | edf=0.0; p=0.71  | 0.03 |
-|AMO           | -0.02     | edf=4.1; p<0.001| edf=5.6; p<0.001 | 0.51 |
+|Variable      | Intercept | Time            |  R2   |
+|--------------|-----------|-----------------|-------|
+|Density       |  0.73     | edf=1.0; p=0.026|  0.21 |
+|Extension     |  1.07     | edf=9.2; p<0.001|  0.35 |
+|Calcification |  0.77     | edf=2.7; p=0.018|  0.12 |
+|G/B           |  1.02     | edf=4.0; p<0.001|  0.63 |
+|WF_Helena     |  292.7    | edf=3.1; p<0.001|  0.60 |
+|WF_Calamar    |  7273.7   | edf=1.0; p=0.91 |  0.01 |
+|HadISST       |  28.1     | edf=2.7; p<0.001|  0.35 |
+|SOI           |  0.14     | edf=1.5; p=0.52 |  0.03 |
+|AMO           | -0.02     | edf=4.7; p<0.001|  0.63 |
 
 Monthly data tend to be complex to work, specially if we are working with coral data that have monthly gaps filled with linear interpolations.
 The temporal resolution is not enough due to radiography resolution (pixel size). However, for the luminescence it is better, which we can use for

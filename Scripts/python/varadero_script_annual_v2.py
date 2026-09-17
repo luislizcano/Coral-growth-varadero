@@ -46,9 +46,9 @@ envir_data = pd.ExcelFile('Data_processed\\env_yr.xlsx')
 lumin_data.sheet_names
 
 ## You can load data by number of sheet
-growth = coral_data.parse(1).iloc[0:62]#.drop([96,97,98]).reset_index(drop=True) ## Growth data
-lumin = lumin_data.parse(0).iloc[0:62] ## Luminescence data
-envir = envir_data.parse(0) ## Environmental data
+growth = coral_data.parse(1).iloc[0:62].sort_values('Year').reset_index(drop=True) ## Growth data
+lumin = lumin_data.parse(0).iloc[0:62].sort_values('Year').reset_index(drop=True) ## Luminescence data
+envir = envir_data.parse(0).sort_values('Year').reset_index(drop=True) ## Environmental data
 # print('Number of rows and columns:',growth.shape)
 
 ## Check if there is missing data
@@ -110,7 +110,7 @@ from statsmodels.tsa.stattools import adfuller
 
 # result = adfuller(growth["Calcification"])
 # result = adfuller(lumin["G/B"])
-result = adfuller(envir["AMO"])
+result = adfuller(envir["WF_Helena"])
 print('Statistic', result[0])   # statistic
 print('p-value', result[1])   # p-value
 
@@ -153,7 +153,7 @@ from statsmodels.stats.stattools import durbin_watson
 
 durbin_watson(growth["Calcification"])
 durbin_watson(lumin["G/B"])
-durbin_watson(envir["AMO"])
+durbin_watson(envir["WF_Helena"])
 '''
 * Durbin-Watson test at lag=1, autocorrelation is important at values < 2
 * Values > 2 indicates no autocorrelation.
@@ -178,47 +178,49 @@ durbin_watson(envir["AMO"])
 
 # =============================================================================
 # OPTION A - Raw data
-# Time-series detrending (removing seasonality)
+# Time-series detrending (Z-scores or STDA)
 # =============================================================================
 
 def detrend(df, cols):
+    d = []
     for c in cols:
-        df[c+"_anom"] = (
-            df[c] -
-            df.groupby(df.Month)[c].transform("mean")
-        )
-    return df
+        z = STDA(df[c])
+        d.append(z)
+    output = pd.concat(d, axis=1,join='outer')
+    output.insert(loc=0, column='Year', value=df['Year'])
+    return output
 
 growth_det = detrend(growth, ['Density','Extension','Calcification'])#.iloc[0:744,:]
 lumin_det = detrend(lumin, ['G/B'])
-envir_det = detrend(envir, ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
-
+envir_det = detrend(envir, ['WF_Helena','WF_Calamar','HadISST'])
+envir_det[['SOI','AMO']] = envir[['SOI','AMO']].values ## Add SOI and AMO
 # =============================================================================
 # A. Test Autocorrelations
 # =============================================================================
 ## plot with 36 lags
-fig = plot_acf(growth_det["Density_anom"], lags=36)
+fig = plot_acf(growth_det["Density"], lags=20)
 plt.show()
 fig.savefig(dir+'\\figE2_ACF_Density-detr_monthly.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
 
 ## at lag=1
-durbin_watson(growth_det["Calcification_anom"])
-durbin_watson(lumin_det["G/B_anom"])
-durbin_watson(envir_det["WF_Helena_anom"])
+durbin_watson(growth_det["Calcification"])
+durbin_watson(lumin_det["G/B"])
+durbin_watson(envir_det["AMO"])
 '''
 * Durbin-Watson test at lag=1, autocorrelation is important at values < 2
 * Values > 2 indicates no autocorrelation.
 |Variable      | d      |
 |--------------|--------|
-Density       = 0.049 *
-Extension     = 0.653 *
-Calcification = 0.683 *
-G/B           = 0.105 *
-WF_Helena     = 0.157 *
-WF_Calamar    = 0.249 *
-HadISST       = 0.373 *
-SOI           = 0.703 *
-AMO           = 0.136 *
+|Density       | 0.637 *|
+|Extension     | 1.586 *|
+|Calcification | 1.851 *|
+|G/B           | 0.526 *|
+|WF_Helena     | 0.490 *|
+|WF_Calamar    | 1.419 *|
+|HadISST       | 1.115 *|
+|SOI           | 1.301 *|
+|AMO           | 0.576 *|
+-------------------------
 '''
 
 # =============================================================================
@@ -227,32 +229,32 @@ AMO           = 0.136 *
 # If p < 0.05, assume non-normal distribution.
 from scipy.stats import shapiro
 
-shapiro(growth_det["Density_anom"])
-shapiro(growth_det["Extension_anom"])
-shapiro(growth_det["Calcification_anom"])
-shapiro(lumin_det["G/B_anom"])
-shapiro(envir_det["WF_Helena_anom"])
-shapiro(envir_det["WF_Calamar_anom"])
-shapiro(envir_det["HadISST_anom"])
-shapiro(envir_det["SOI_anom"])
-shapiro(envir_det["AMO_anom"])
+shapiro(growth_det["Density"])
+shapiro(growth_det["Extension"])
+shapiro(growth_det["Calcification"])
+shapiro(lumin_det["G/B"])
+shapiro(envir_det["WF_Helena"])
+shapiro(envir_det["WF_Calamar"])
+shapiro(envir_det["HadISST"])
+shapiro(envir_det["SOI"])
+shapiro(envir_det["AMO"])
 
 '''
 Shapiro Results (1954-2015)
--------------------------------------
-|Variable      | Statistic | p-value  |
-|--------------|-----------|----------|
-|Density       |  0.99     |  0.000 * |
-|Extension     |  0.98     |  0.000 * |
-|Calcification |  0.98     |  0.000 * |
-|G/B           |  0.99     |  0.001 * |
-|WF_Helena     |  0.96     |  0.000 * |
-|WF_Calamar    |  0.99     |  0.000 * |
-|HadISST       |  0.97     |  0.168   |
-|SOI           |  0.99     |  0.001 * |
-|AMO           |  0.99     |  0.000 * |
--------------------------------------
-*There is no normality for all variables.
+----------------------------------------
+|Variable      | W-Statistic | p-value  |
+|--------------|-------------|----------|
+|Density       |  0.98       |  0.51    |
+|Extension     |  0.97       |  0.14    |
+|Calcification |  0.98       |  0.76    |
+|G/B           |  0.97       |  0.13    |
+|WF_Helena     |  0.93       |  0.002 * | 0.72 (1981-2015)
+|WF_Calamar    |  0.98       |  0.49    |
+|HadISST       |  0.99       |  0.89    |
+|SOI           |  0.98       |  0.28    |
+|AMO           |  0.99       |  0.77    |
+----------------------------------------
+*There is no normality for WF_Helena.
 '''
 
 # =============================================================================
@@ -263,39 +265,36 @@ Shapiro Results (1954-2015)
 growth_vars = ['Density','Extension','Calcification']
 lumin_vars = ['G/B']
 envir_vars = ['WF_Helena','WF_Calamar','HadISST','SOI','AMO']
-growth_vars2 = ['Density_anom','Extension_anom','Calcification_anom']
-lumin_vars2 = ['G/B_anom']
-envir_vars2 = ['WF_Helena_anom','WF_Calamar_anom','HadISST_anom','SOI_anom','AMO_anom']
-
-## Predictor correlations
-envir_det[envir_vars2].corr()
 
 ## Variance Inflation Factors (VIFs)
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 vif = pd.DataFrame({
-    "Variable": envir_det[envir_vars2].columns,
-    "VIF": [variance_inflation_factor(envir_det[envir_vars2].values, i)
-            for i in range(envir_det[envir_vars2].shape[1])] })
+    "Variable": envir_det[envir_vars].columns,
+    "VIF": [variance_inflation_factor(envir_det[envir_vars].values, i)
+            for i in range(envir_det[envir_vars].shape[1])] })
 print(vif)
 '''
 VIF < 5: generally acceptable
 VIF between 5 and 10: moderate multicollinearity.
 VIF > 10: severe multicollinearity.
 
-|          Variable |     VIF  |
-|-------------------|----------|
-|   WF_Helena_anom  | 1.902295 |
-|  WF_Calamar_anom  | 2.281343 |
-|     HadISST_anom  | 1.975874 |
-|         SOI_anom  | 1.456005 |
-|         AMO_anom  | 2.056262 |
+|     Variable | VIF  |
+|--------------|------|
+|   WF_Helena  | 1.94 |
+|  WF_Calamar  | 2.83 |
+|     HadISST  | 3.03 |
+|         SOI  | 2.12 |
+|         AMO  | 3.19 |
 '''
 
 # =============================================================================
 # A. Pearson Correlation
 # =============================================================================
 from scipy.stats import pearsonr
+
+## Predictor correlations
+envir_det[envir_vars].corr()
 
 # growth_det = growth_det.sort_values(by='Y.M.', ascending=True)
 # lumin_det = lumin_det.sort_values(by='Y.M', ascending=True)
@@ -310,23 +309,61 @@ def corr(x_df,y_df,x_cols,y_cols):
             print(f"Adjusted p-value: {p_val:.3f}")
 
 ## Prepare data >1984
-growth_det2 = growth_det.iloc[0:384,:]
-lumin_det2 = lumin_det.iloc[0:384,:]
-envir_det2 = envir_det.iloc[0:384,:]
+growth_det2 = growth_det.iloc[30:,:]
+lumin_det2 = lumin_det.iloc[30:,:]
+envir_det2 = envir_det.iloc[30:,:]
 ## Prepare data <1984
-growth_det3 = growth_det.iloc[384:,:]
-lumin_det3 = lumin_det.iloc[384:,:]
-envir_det3 = envir_det.iloc[384:,:]
+growth_det3 = growth_det.iloc[0:30,:]
+lumin_det3 = lumin_det.iloc[0:30,:]
+envir_det3 = envir_det.iloc[0:30,:]
 
 ## Variables
 growth_vars = ['Density','Extension','Calcification']
 lumin_vars = ['G/B']
 envir_vars = ['WF_Helena','WF_Calamar','HadISST','SOI','AMO']
-growth_vars2 = ['Density_anom','Extension_anom','Calcification_anom']
-lumin_vars2 = ['G/B_anom']
-envir_vars2 = ['WF_Helena_anom','WF_Calamar_anom','HadISST_anom','SOI_anom','AMO_anom']
 
 ## Correlations of raw data
+growth_corrs = corr(envir, growth, envir_vars, growth_vars)
+lumin_corrs = corr(envir,lumin, envir_vars, lumin_vars)
+
+## test post 1984 [0:384,:]
+growth_corrs2 = corr(envir.iloc[30:,:],growth.iloc[30:,:], envir_vars, growth_vars)
+lumin_corrs2 = corr(envir.iloc[30:,:],lumin.iloc[30:,:], envir_vars, lumin_vars)
+
+## test pre 1983 [384:,:]. Sta Helena data is modeled
+growth_corrs3 = corr(envir.iloc[0:30,:],growth.iloc[0:30,:], envir_vars, growth_vars)
+lumin_corrs3 = corr(envir.iloc[0:30,:],lumin.iloc[0:30,:], envir_vars, lumin_vars)
+'''
+USING RAW DATA
+------------------------------------------------------------------------------------
+ 1954-2015    | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       |-0.39,0.002 *| 0.11,0.374  |-0.20,0.126  | 0.20,0.114 |-0.28,0.026 *|
+Extension     | 0.29,0.023 *|-0.03,0.830  | 0.28,0.025 *| 0.09,0.470 | 0.45,<0.001*|
+Calcification |-0.09,0.481  | 0.09,0.487  | 0.01,0.927  | 0.27,0.034*| 0.10,0.427  |
+G/B           |-0.27,0.032 *| 0.32,0.011 *|-0.43,<0.001*| 0.19,0.136 |-0.34,0.008 *|
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       |-0.01,0.970  | 0.18,0.336  |-0.06,0.736  | 0.00,0.995 |-0.31,0.085  |
+Extension     | 0.14,0.447  |-0.04,0.824  | 0.22,0.231  | 0.11,0.550 | 0.24,0.182  |
+Calcification | 0.12,0.514  | 0.08,0.648  | 0.03,0.889  | 0.12,0.511 |-0.07,0.697  |
+G/B           | 0.16,0.388  | 0.42,0.018 *|-0.52,0.002 *| 0.09,0.625 |-0.49,0.005 *|
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
+------------------------------------------------------------------------------------
+Density       | 0.09,0.651  | 0.09,0.619  | 0.02,0.905  | 0.31,0.099 | 0.03,0.886  |
+Extension     |-0.05,0.807  |-0.01,0.977  | 0.17,0.366  | 0.17,0.369 | 0.55,0.002 *|
+Calcification | 0.05,0.780  | 0.10,0.600  | 0.16,0.404  | 0.40,0.030*| 0.46,0.010 *|
+G/B           | 0.23,0.229  | 0.25,0.184  | 0.06,0.772  | 0.28,0.135 | 0.29,0.114  |
+------------------------------------------------------------------------------------
+'''
+
+## Correlations of detrended data
 growth_corrs = corr(envir_det, growth_det, envir_vars, growth_vars)
 lumin_corrs = corr(envir_det,lumin_det, envir_vars, lumin_vars)
 
@@ -338,76 +375,35 @@ lumin_corrs2 = corr(envir_det2,lumin_det2, envir_vars, lumin_vars)
 growth_corrs3 = corr(envir_det3,growth_det3, envir_vars, growth_vars)
 lumin_corrs3 = corr(envir_det3,lumin_det3, envir_vars, lumin_vars)
 '''
-USING RAW DATA
-------------------------------------------------------------------------------------
- 1954-2015    | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-------------------------------------------------------------------------------------
-Density       | 0.08,0.026  | 0.43,<0.001 | 0.45,<0.001 | 0.05,0.146 |-0.12,0.001  |
-Extension     | 0.17,<0.001 | 0.10,0.004  |-0.20,<0.001 | 0.05,0.178 | 0.08,0.023  |
-Calcification | 0.18,<0.001 | 0.31,<0.001 | 0.01,0.845  | 0.07,0.062 | 0.01,0.829  |
-G/B           | 0.22,<0.001 | 0.53,<0.001 | 0.04,0.258  | 0.10,0.005 |-0.19,<0.001 |
-------------------------------------------------------------------------------------
-
-------------------------------------------------------------------------------------
-1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-------------------------------------------------------------------------------------
-Density       | 0.39,<0.001 | 0.48,<0.001 | 0.53,<0.001 |-0.04,0.396 |-0.03,0.542  |
-Extension     | 0.16,0.002  | 0.08,0.122  |-0.20,<0.001 | 0.14,0.006 |-0.07,0.542  |
-Calcification | 0.33,<0.001 | 0.30,<0.001 | 0.04,0.412  | 0.11,0.035 |-0.07,0.156  |
-G/B           | 0.49,<0.001 | 0.55,<0.001 | 0.02,0.689  | 0.11,0.027 |-0.12,0.016  |
-------------------------------------------------------------------------------------
-
-------------------------------------------------------------------------------------
-1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-------------------------------------------------------------------------------------
-Density       | 0.40,<0.001 | 0.45,<0.001 | 0.54,<0.001 | 0.09,0.079 | 0.01,0.864  |
-Extension     | 0.10,0.051  | 0.13,0.012  |-0.25,<0.001 |-0.01,0.860 | 0.16,0.002  |
-Calcification | 0.27,<0.001 | 0.32,<0.001 |-0.00,0.942  | 0.03,0.561 | 0.16,0.002  |
-G/B           | 0.47,<0.001 | 0.55,<0.001 | 0.16,0.002  | 0.05,0.321 | 0.11,0.046  |
-------------------------------------------------------------------------------------
-'''
-
-## Correlations of detrended data
-growth_corrs = corr(envir_det, growth_det, envir_vars2, growth_vars2)
-lumin_corrs = corr(envir_det,lumin_det, envir_vars2, lumin_vars2)
-
-## test post 1984 [0:384,:]
-growth_corrs2 = corr(envir_det2,growth_det2, envir_vars2, growth_vars2)
-lumin_corrs2 = corr(envir_det2,lumin_det2, envir_vars2, lumin_vars2)
-
-## test pre 1983 [384:,:]. Sta Helena data is modeled
-growth_corrs3 = corr(envir_det3,growth_det3, envir_vars2, growth_vars2)
-lumin_corrs3 = corr(envir_det3,lumin_det3, envir_vars2, lumin_vars2)
-'''
 USING DETRENDED DATA
 ------------------------------------------------------------------------------------
  1954-2015    | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
 ------------------------------------------------------------------------------------
-Density       |-0.31,<0.001 | 0.12,0.002  |-0.14,<0.001 | 0.12,0.001 |-0.21,<0.001 |
-Extension     | 0.13,<0.001 |-0.01,0.847  | 0.18,<0.001 | 0.09,0.011 | 0.24,<0.001 |
-Calcification |-0.07,0.054  | 0.05,0.178  | 0.06,0.080  | 0.15,<0.001| 0.09,0.013  |
-G/B           |-0.13,0.001  | 0.33,<0.001 |-0.36,<0.001 | 0.21,<0.001|-0.25,<0.001 |
+Density       |-0.39,0.002 *| 0.11,0.374  |-0.20,0.126  | 0.20,0.114 |-0.28,0.026 *|
+Extension     | 0.29,0.023 *|-0.03,0.830  | 0.28,0.025 *| 0.09,0.470 | 0.45,<0.001*|
+Calcification |-0.09,0.481  | 0.09,0.487  | 0.01,0.927  | 0.27,0.034*| 0.10,0.427  |
+G/B           |-0.27,0.032 *| 0.32,0.011 *|-0.43,<0.001*| 0.19,0.136 |-0.34,0.008 *|
 ------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------
 1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
 ------------------------------------------------------------------------------------
-Density       | 0.01,0.825  | 0.18,<0.001 |-0.08,0.138  |-0.01,0.919 |-0.22,<0.001 |
-Extension     | 0.03,0.516  |-0.04,0.465  | 0.16,0.002  | 0.15,0.004 | 0.10,0.056  |
-Calcification | 0.01,0.797  | 0.03,0.584  | 0.05,0.307  | 0.12,0.016 |-0.05,0.326  |
-G/B           | 0.24,<0.001 | 0.40,<0.001 |-0.44,<0.001 | 0.18,<0.001|-0.38,<0.001 |
+Density       |-0.01,0.970  | 0.18,0.336  |-0.06,0.736  | 0.00,0.995 |-0.31,0.085  |
+Extension     | 0.14,0.447  |-0.04,0.824  | 0.22,0.231  | 0.11,0.550 | 0.24,0.182  |
+Calcification | 0.12,0.514  | 0.08,0.648  | 0.03,0.889  | 0.12,0.511 |-0.07,0.697  |
+G/B           | 0.16,0.388  | 0.42,0.018 *|-0.52,0.002 *| 0.09,0.625 |-0.49,0.005 *|
 ------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------
 1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
 ------------------------------------------------------------------------------------
-Density       | 0.02,0.679  | 0.08,0.125  | 0.05,0.326  | 0.19,<0.001| 0.07,0.208  |
-Extension     |-0.01,0.833  | 0.03,0.536  | 0.11,0.033  | 0.07,0.199 | 0.30,<0.001 |
-Calcification | 0.00,0.927  | 0.07,0.170  | 0.15,0.004  | 0.16,0.003 | 0.32,<0.001 |
-G/B           | 0.17,0.001  | 0.30,<0.001 |-0.04,0.442  | 0.23,<0.001| 0.23,<0.001 |
+Density       | 0.09,0.651  | 0.09,0.619  | 0.02,0.905  | 0.31,0.099*| 0.03,0.886  |
+Extension     |-0.05,0.807  |-0.01,0.977  | 0.17,0.366  | 0.17,0.369 | 0.55,<0.002*|
+Calcification | 0.05,0.780  | 0.10,0.600  | 0.16,0.404  | 0.40,0.030*| 0.46,0.010 *|
+G/B           | 0.23,0.229  | 0.25,0.184  | 0.06,0.772  | 0.28,0.135 | 0.29,0.114  |
 ------------------------------------------------------------------------------------
 '''
-plt.scatter(envir_det2['WF_Helena_anom'], lumin_det2['G/B_anom'])
+plt.scatter(envir_det2['WF_Helena'], lumin_det2['G/B'])
 
 
 # =============================================================================

@@ -81,7 +81,7 @@ df_envir <- nested_plots_data %>%
   mutate(Variable = factor(Variable, levels = c("WF_Helena", "WF_Calamar", "HadISST","SOI","AMO")))
 
 ### Select dataframe for plot
-data_plot = df_growth
+data_plot = df_envir
 
 # --- Step 3: Define Aligned Grid Breaks ---
 grid_breaks1 <- seq(from = min(data_plot$Date), 
@@ -132,13 +132,13 @@ summary(models$AMO$gam) # GAM model
 summary(models$Density$lme) #autocorrelation
 acf(residuals(models$Density$lme, type="normalized")) # plot
 ## Visualize the smooths
-plot(models$Density$gam,
+plot(models$Extension$gam,
      pages=1,
      shade=TRUE)
 
 ### Save figure
 ggsave(
-  "GAM_growth_annual.tiff",
+  "GAM_envir_annual.tiff",
   width = 90,
   height = 120,
   units = "mm",
