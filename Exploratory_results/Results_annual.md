@@ -125,7 +125,7 @@ Temporal dependence among residuals was accounted for using a first-order autore
 The model was specified as $$\(Y_t=\beta_0+f(t)+\epsilon_t\)$$, where $$\(f(t)\)$$ represents the smooth temporal function and residuals 
 followed $$\(\epsilon_t=\phi\epsilon_{t-1}+\eta_t\)$$. The degree of smoothness was estimated from the data using penalized regression splines.
 
-* $\(\Y_t\)$$ = observed annual value at year $$\(t\)$$
+* $$Y_t$$ = observed annual value at year $$\(t\)$$
 * $$\(\beta_0\)$$ = intercept
 * $$\(f(t)\)$$ = smooth nonlinear function of time estimated using a cubic regression spline
 * $$\(\epsilon_t\)$$ = residual error
