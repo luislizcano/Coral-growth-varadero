@@ -52,7 +52,7 @@ nested_plots_data <- long_data %>%
   do({
     # Fit the exact same model configuration for the current variable group
     model <- gamm(
-      Value ~ s(Time, bs = "cr", k = 62),
+      Value ~ s(Time, bs = "cr", k = 20),
       data = .,
       correlation = corARMA(form = ~ Time, p = 1)
     )
@@ -81,7 +81,7 @@ df_envir <- nested_plots_data %>%
   mutate(Variable = factor(Variable, levels = c("WF_Helena", "WF_Calamar", "HadISST","SOI","AMO")))
 
 ### Select dataframe for plot
-data_plot = df_envir
+data_plot = df_growth
 
 # --- Step 3: Define Aligned Grid Breaks ---
 grid_breaks1 <- seq(from = min(data_plot$Date), 
@@ -130,7 +130,11 @@ ggplot(data_plot, aes(x = Date)) +
 summary(models$AMO$gam) # GAM model
 ## Check whether AR(1) was sufficient
 summary(models$Density$lme) #autocorrelation
+### Check autocorrelation plot
 acf(residuals(models$Density$lme, type="normalized")) # plot
+### Check AIC (the lower the better fit/model)
+AIC(models$Density$lme)
+
 ## Visualize the smooths
 plot(models$Extension$gam,
      pages=1,
