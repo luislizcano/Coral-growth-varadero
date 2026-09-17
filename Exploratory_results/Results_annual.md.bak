@@ -154,12 +154,11 @@ The GAM allows to fit non-linear trends to data.
 <img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE4_GAM_envir_annual.svg" width="400">
 </p>
 
-For the long-term trends using GAM, each variable's trend is depending on the time (years) and months. The monthly data have strong seasonal
-variability, for most of the variables, so the trends showed here are deseasonalized, only accounting for the long-term.
+For the long-term trends using GAM, each variable's trend is depending on the time (years). 
 The table of results are indicating that many variables tend to be linear (see edf (estimated degrees of freedom), if edf = 1.0, the trend is linear),
 and the p-value indicates if that trend is significant over time. \
 
-Variables such as Extension, WF_Helena, and AMO have clearly nonlinear trends.
+Variables such as Extension, G/B, WF_Helena, and AMO have clearly nonlinear trends. It would be interesting keep doing further analysis with pre- and post- the dredging event of 1984.
 
 |Variable      | Intercept | Time            |  R2   |
 |--------------|-----------|-----------------|-------|
@@ -173,6 +172,3 @@ Variables such as Extension, WF_Helena, and AMO have clearly nonlinear trends.
 |SOI           |  0.14     | edf=1.5; p=0.52 |  0.03 |
 |AMO           | -0.02     | edf=4.7; p<0.001|  0.63 |
 
-Monthly data tend to be complex to work, specially if we are working with coral data that have monthly gaps filled with linear interpolations.
-The temporal resolution is not enough due to radiography resolution (pixel size). However, for the luminescence it is better, which we can use for
-the wavelet analysis.
