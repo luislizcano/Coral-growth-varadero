@@ -194,6 +194,7 @@ growth_det = detrend(growth, ['Density','Extension','Calcification'])#.iloc[0:74
 lumin_det = detrend(lumin, ['G/B'])
 envir_det = detrend(envir, ['WF_Helena','WF_Calamar','HadISST'])
 envir_det[['SOI','AMO']] = envir[['SOI','AMO']].values ## Add SOI and AMO
+
 # =============================================================================
 # A. Test Autocorrelations
 # =============================================================================
@@ -291,7 +292,6 @@ VIF > 10: severe multicollinearity.
 # =============================================================================
 # A. Pearson Correlation
 # =============================================================================
-from scipy.stats import pearsonr
 
 ## Predictor correlations
 envir_det[envir_vars].corr()
@@ -407,114 +407,58 @@ plt.scatter(envir_det2['WF_Helena'], lumin_det2['G/B'])
 
 
 # =============================================================================
-# OPTION B - Residuals
-# Time-series detrending (removing seasonality)
+# Evidences that support two hidrological regimes
 # =============================================================================
-'''
-Residual correlation is appropriate if your question is:
-"Are unusually warm months associated with unusually high or low skeletal 
-density, independent of seasonality and long-term trend?"
-
-It is less appropriate if your question is:
-    "Does long-term warming explain long-term changes in skeletal density?"
-'''
-from statsmodels.tsa.stattools import acf
-
-def resid_det(df, cols):
-    df_residuals = pd.DataFrame(index=df.index)
-    
-    for col in cols:
-        # Using multiplicative or additive decomposition depending on your data structure
-        decomposition = seasonal_decompose(df[col], model='additive', period=12)
-        # Extract the residual component (un-autocorrelated anomaly)
-        df_residuals[col] = decomposition.resid
-    
-    # Drop NaNs created at the edges by the decomposition window
-    df_residuals.dropna(inplace=True)
-    return df_residuals
-
-growth_resid = resid_det(growth,['Density','Extension','Calcification'])
-lumin_resid = resid_det(lumin,['G/B'])
-envir_resid = resid_det(envir,['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
-# Test if residuals still have autocorrelation using Autocorrelation Function (ACF)
-print("Residual Autocorrelation (Lag 1):", acf(envir_resid['AMO'], nlags=1)[1])
-# Values close to 0 mean autocorrelation has been successfully mitigated.
-
-'''
-Autocorrelation values from -1 to +1.
-Values close to 0 mean autocorrelation has been successfully mitigated.
-Autocorrelation after removing seasonality on residuals:
-    Density       = 0.644
-    Extension     = 0.388
-    Calcification = 0.389
-    G/B           = 0.071
-    WF_Helena     = 0.561
-    WF_Calamar    = 0.595
-    HadISST       = 0.338
-    SOI           = 0.134
-    AMO           = 0.609
-*** Autocorrelation is still high.
-'''
-
+# Regression model with an interaction
 # =============================================================================
-# Pearson Correlation
-# =============================================================================
-
-def corr(x_df,y_df,x_cols,y_cols):
-    for x in x_cols:
-        for y in y_cols:
-            r_val, p_val = pearsonr(x_df[x], y_df[y])
-            print(f"\n--- Final Results {x} vs {y} ---")
-            print(f"Correlation Coefficient (r): {r_val:.4f}")
-            print(f"Adjusted p-value: {p_val:.4e}")
-
-growth_corrs = corr(envir_resid,growth_resid,
-                    ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'],
-                    ['Density','Extension','Calcification'])
-lumin_corrs = corr(envir_resid,lumin_resid,
-                    ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'],['G/B'])
-
-plt.scatter(envir_resid['HadISST'], growth_resid['Density'])
+''' It will help to test if the effect of one predictor on the outcome depends 
+    on the value of another
 '''
--------------------------------------------------------------------------------------
-              | WF_Helena   | WF_Calamar  | HadISST     | SOI         | AMO         |
--------------------------------------------------------------------------------------
-Density       |-0.03,<0.001 | 0.10,<0.001 |-0.03,<0.001 |-0.05,<0.001 | 0.05,<0.001 |
-Extension     |-0.08,<0.001 |-0.05,<0.001 | 0.13,<0.001 | 0.03,<0.001 | 0.12,<0.001 |
-Calcification |-0.09,<0.001 |-0.02,<0.001 | 0.13,<0.001 | 0.02,<0.001 | 0.01,<0.001 |
-G/B           | 0.07,<0.001 | 0.07,<0.001 |-0.06,<0.001 |-0.04,<0.001 | 0.06,<0.001 |
--------------------------------------------------------------------------------------
-Correlations with High sginificance, but low coefficient. 
+import statsmodels.formula.api as smf
+
+## Merge all variables
+df = pd.concat([growth_det, lumin_det['G/B'], envir_det[envir_vars]],axis=1,join='outer')
+
+## Create indexation for the period After 1984
+df["After"] = (df["Year"] >= 1984).astype(int)
+df = df.rename(columns={"G/B": "G_B"})
+
+## Run model
+model = smf.ols("WF_Calamar ~ WF_Helena * After", data=df).fit()
+print(model.summary())
+
+'''
+Result / interpretation
+
+| Term               | Estimate | p-value | Meaning                            |
+| ------------------ | -------: | ------: | ---------------------------------- |
+| Intercept          |   0.5281 |   0.002 | Baseline intercept before 1984     |
+| WF_Calamar         |   0.1065 |   0.562 | Calamar–density slope before 1984  |
+| After              |  −1.0231 |  <0.001 | Difference in intercept after 1984 |
+| WF_Calamar × After |   0.0069 |   0.976 | **Change in slope after 1984**     |
+
+Before 1984:
+    Density = 0.5281 + 0.1065(WF_Calamar)
+After 1984:
+    Density = 0.5281 + 0.1065(WF_Calamar) − 1.0231 + 0.0069(WF_Calamar),
+Therefore:
+    Density = −0.4950 + 0.1134(WF_Calamar)
+The estimated slope after 1984 is 0.1065 + 0.0069 = 0.1134
+
+The very large p-value means your model provides no statistical evidence that 
+the Calamar discharge–density relationship changed between the two periods
+
+In conclusion, the relationship between Calamar discharge and coral skeletal 
+density did not show evidence of a change after 1984.
 '''
 
-# =============================================================================
-# Cross-correlations
-# =============================================================================
-from statsmodels.tsa.stattools import ccf
-
-cross = ccf(envir_det["HadISST"], growth_det["Density"])
+sns.lmplot(data=df,x="WF_Calamar",y="G_B",hue="After",ci=95)
+# plt.xlabel("Calamar discharge")
+# plt.ylabel("Santa Helena discharge")
+plt.show()
 
 
-# =============================================================================
-# MULTIPLE LINEAR REGRESSION
-# =============================================================================
-import statsmodels.api as sm
 
-def mlr(x_df, y_df, x_vars, y_vars):
-    X = sm.add_constant(x_df[x_vars])
-    for i in y_vars:
-        y = y_df[i]
-        model = sm.OLS(y, X).fit()
-        print("\n \n Response Variable: "+i)
-        print(model.summary())
-        
-        ## Check autocorrelation of residuals
-        plot_acf(model.resid, lags=36)
-
-mlr(envir_det, growth_det, envir_vars2, growth_vars2)
-'''
-Residuals are autocorrelated. So, go to the next step
-'''
 
 # =============================================================================
 # GLSAR (Generalized Least Squares with AR errors)
@@ -527,7 +471,7 @@ Here, the Density showed autocorrelations at lag ~16, but the extension and
 calcification at lag ~5. The Density may required AR with rho ~5, maybe.
 **I think this also requires linearity, which in our case the data it is not.
 '''
-
+import statsmodels.api as sm
 from statsmodels.regression.linear_model import GLSAR
 
 def glsar_run(x_df, y_df, x_vars, y_vars):
@@ -538,14 +482,13 @@ def glsar_run(x_df, y_df, x_vars, y_vars):
         results = glsar.iterative_fit(maxiter=10)
         print(results.summary())
 
-glsar_run(envir_det.sort_values(by='Y.M', ascending=False), 
-          growth_det.sort_values(by='Y.M.', ascending=False), 
-          envir_vars2, growth_vars2)
+glsar_run(envir_det.sort_values(by='Year', ascending=False), 
+          growth_det.sort_values(by='Year', ascending=False), 
+          envir_vars, growth_vars)
 '''
 The coefficients and R2 are very small, although there are some variables with
 p < 0.05. This suggest is better to inspect GAMM in R.
 '''
-
 
 # =============================================================================
 # SARIMAX
@@ -567,8 +510,7 @@ def sarimax_run(x_df, y_df, x_vars, y_vars):
 
 sarimax_run(envir_det.sort_values(by='Y.M', ascending=False), 
           growth_det.sort_values(by='Y.M.', ascending=False), 
-          envir_vars2, growth_vars2)
-
+          envir_vars, growth_vars)
 
 # =============================================================================
 # Generalized Additive Model (GAM)
@@ -590,7 +532,7 @@ def gam_run(x_df, y_df, x_vars, y_vars):
         
 gam_run(envir_det.sort_values(by='Y.M', ascending=False), 
           growth_det.sort_values(by='Y.M.', ascending=False), 
-          envir_vars2, growth_vars2)
+          envir_vars, growth_vars)
 
 
 

@@ -114,24 +114,26 @@ However, the data **violates** the normality and autocorrelations (and potential
 For exploratory purposes, the correlations were ran using detrended monthly data for three periods: the whole period 1954-2015, and the before and after the dredging events of 1984.
 Interpretations may be biased due to assumptions are not met. Left value is correlation and right value is p-value.
 
-| **1954-2015** | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-|---------------|-------------|-------------|-------------|------------|-------------|
+I think the main reason that we find more significant correlations using monthly data is the larger n.
+
+| **1954-2015** | WF_Helena    | WF_Calamar   | HadISST      | SOI         | AMO          |
+|---------------|--------------|--------------|--------------|-------------|--------------|
 |Density        |-0.31, <0.001 | 0.12, 0.002  |-0.14, <0.001 | 0.12, 0.001 |-0.21, <0.001 |
 |Extension      | 0.13, <0.001 |-0.01, 0.847  | 0.18, <0.001 | 0.09, 0.011 | 0.24, <0.001 |
 |Calcification  |-0.07, 0.054  | 0.05, 0.178  | 0.06, 0.080  | 0.15, <0.001| 0.09, 0.013  |
 |G/B            |-0.13, 0.001  | 0.33, <0.001 |-0.36, <0.001 | 0.21, <0.001|-0.25, <0.001 |
 
 
-|**1954-1983** | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-|--------------|-------------|-------------|-------------|------------|-------------|
+|**1954-1983** | WF_Helena    | WF_Calamar   | HadISST      | SOI         | AMO          |
+|--------------|--------------|--------------|--------------|-------------|--------------|
 |Density       | 0.02, 0.679  | 0.08, 0.125  | 0.05, 0.326  | 0.19, <0.001| 0.07, 0.208  |
 |Extension     |-0.01, 0.833  | 0.03, 0.536  | 0.11, 0.033  | 0.07, 0.199 | 0.30, <0.001 |
 |Calcification | 0.00, 0.927  | 0.07, 0.170  | 0.15, 0.004  | 0.16, 0.003 | 0.32, <0.001 |
 |G/B           | 0.17, 0.001  | 0.30, <0.001 |-0.04, 0.442  | 0.23, <0.001| 0.23, <0.001 |
 
 
-|**1984-2015** | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
-|--------------|-------------|-------------|-------------|------------|-------------|
+|**1984-2015** | WF_Helena    | WF_Calamar   | HadISST      | SOI         | AMO          |
+|--------------|--------------|--------------|--------------|-------------|--------------|
 |Density       | 0.01, 0.825  | 0.18, <0.001 |-0.08, 0.138  |-0.01, 0.919 |-0.22, <0.001 |
 |Extension     | 0.03, 0.516  |-0.04, 0.465  | 0.16, 0.002  | 0.15, 0.004 | 0.10, 0.056  |
 |Calcification | 0.01, 0.797  | 0.03, 0.584  | 0.05, 0.307  | 0.12, 0.016 |-0.05, 0.326  |

@@ -126,9 +126,9 @@ The model was specified as $$\(Y_t=\beta_0+f(t)+\epsilon_t\)$$, where $$\(f(t)\)
 followed $$\(\epsilon_t=\phi\epsilon_{t-1}+\eta_t\)$$. The degree of smoothness was estimated from the data using penalized regression splines.
 
 * $$Y_t$$ = observed annual value at year $$\(t\)$$
-* $$\(\beta_0\)$$ = intercept
-* $$\(f(t)\)$$ = smooth nonlinear function of time estimated using a cubic regression spline
-* $$\(\epsilon_t\)$$ = residual error
+* $$beta_0$$ = intercept
+* $$f(t)$$ = smooth nonlinear function of time estimated using a cubic regression spline
+* $$epsilon_t$$ = residual error
 
 The AR(1) structure is:
 
@@ -161,27 +161,59 @@ Variables such as Extension, G/B, WF_Helena, and AMO have clearly nonlinear tren
 |AMO           | -0.02     | edf=4.7; p<0.001|  0.63 |
 
 ### Pearson correlations
-For exploratory purposes, the correlations were ran using detrended monthly data for three periods: the whole period 1954-2015, and the before and after the dredging events of 1984.
+For exploratory purposes, the correlations were ran using detrended monthly data for three periods: the whole period 1954-2015, and the before and after the dredging 
+events of 1984 (assuming linearity).
 Interpretations may be biased due to some assumptions are not met. Left value is correlation and right value is p-value.
 
- 1954-2015    | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
---------------|-------------|-------------|-------------|------------|-------------|
-Density       |-0.39, **0.002**| 0.11, 0.374  |-0.20, 0.126  | 0.20, 0.114 |-0.28, **0.026**|
-Extension     | 0.29, **0.023**|-0.03, 0.830  | 0.28, **0.025**| 0.09, 0.470 | 0.45, **<0.001**|
-Calcification |-0.09, 0.481  | 0.09, 0.487  | 0.01, 0.927  | 0.27, **0.034**| 0.10, 0.427  |
-G/B           |-0.27, **0.032**| 0.32, **0.011**|-0.43, **<0.001**| 0.19, 0.136 |-0.34, **0.008**|
+ 1954-2015    | WF_Helena      | WF_Calamar     | HadISST         | SOI            | AMO             |
+--------------|----------------|----------------|-----------------|----------------|-----------------|
+Density       |-0.39, **0.002**| 0.11, 0.374    |-0.20, 0.126     | 0.20, 0.114    |-0.28, **0.026** |
+Extension     | 0.29, **0.023**|-0.03, 0.830    | 0.28, **0.025** | 0.09, 0.470    | 0.45, **<0.001**|
+Calcification |-0.09, 0.481    | 0.09, 0.487    | 0.01, 0.927     | 0.27, **0.034**| 0.10, 0.427     |
+G/B           |-0.27, **0.032**| 0.32, **0.011**|-0.43, **<0.001**| 0.19, 0.136    |-0.34, **0.008** |
 
-1954-1983     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
---------------|-------------|-------------|-------------|------------|-------------|
-Density       | 0.09, 0.651  | 0.09, 0.619  | 0.02, 0.905  | 0.31, 0.099| 0.03, 0.886  |
-Extension     |-0.05, 0.807  |-0.01, 0.977  | 0.17, 0.366  | 0.17, 0.369 | 0.55, **<0.002**|
-Calcification | 0.05, 0.780  | 0.10, 0.600  | 0.16, 0.404  | 0.40, **0.030**| 0.46, **0.010**|
-G/B           | 0.23, 0.229  | 0.25, 0.184  | 0.06, 0.772  | 0.28, 0.135 | 0.29, 0.114  |
+1954-1983     | WF_Helena    | WF_Calamar   | HadISST      | SOI            | AMO             |
+--------------|--------------|--------------|--------------|----------------|-----------------|
+Density       | 0.09, 0.651  | 0.09, 0.619  | 0.02, 0.905  | 0.31, 0.099    | 0.03, 0.886     |
+Extension     |-0.05, 0.807  |-0.01, 0.977  | 0.17, 0.366  | 0.17, 0.369    | 0.55, **<0.002**|
+Calcification | 0.05, 0.780  | 0.10, 0.600  | 0.16, 0.404  | 0.40, **0.030**| 0.46, **0.010** |
+G/B           | 0.23, 0.229  | 0.25, 0.184  | 0.06, 0.772  | 0.28, 0.135    | 0.29, 0.114     |
 
-1984-2015     | WF_Helena   | WF_Calamar  | HadISST     | SOI        | AMO         |
---------------|-------------|-------------|-------------|------------|-------------|
-Density       |-0.01, 0.970  | 0.18, 0.336  |-0.06, 0.736  | 0.00, 0.995 |-0.31, 0.085  |
-Extension     | 0.14, 0.447  |-0.04, 0.824  | 0.22, 0.231  | 0.11, 0.550 | 0.24, 0.182  |
-Calcification | 0.12, 0.514  | 0.08, 0.648  | 0.03, 0.889  | 0.12, 0.511 |-0.07, 0.697  |
+1984-2015     | WF_Helena    | WF_Calamar     | HadISST        | SOI         | AMO            |
+--------------|--------------|----------------|----------------|-------------|----------------|
+Density       |-0.01, 0.970  | 0.18, 0.336    |-0.06, 0.736    | 0.00, 0.995 |-0.31, 0.085    |
+Extension     | 0.14, 0.447  |-0.04, 0.824    | 0.22, 0.231    | 0.11, 0.550 | 0.24, 0.182    |
+Calcification | 0.12, 0.514  | 0.08, 0.648    | 0.03, 0.889    | 0.12, 0.511 |-0.07, 0.697    |
 G/B           | 0.16, 0.388  | 0.42, **0.018**|-0.52, **0.002**| 0.09, 0.625 |-0.49, **0.005**|
 
+In this case, it is interesting to see that the correlations for the long-term, and the periods before and after 1984, are different.
+The most interesting result is that G/B is not correlated with water discharge at Sta Helena, but it is with the Calamar station after 1984.
+Water flow at Sta Helena increases over time after 1984 as the WF at Calamar is stable, but after 1984 there is more water coming from
+Calamar (and the Magdalena River) to Sta Helena and into the Bay.
+
+This is a strong evidence to continue analysis per periods.
+
+### Water flows of the Canal del Dique
+The Canal del Dique have water flow data available from 1941 to the present at the Calamar station, which is located at the Canal del Dique
+bifurcation from the Magdalena river. A closer station to Cartagena Bay is Santa Helena, which have data from 1981 to the present.
+This station was born in the same year that the dredging works started. So there is not much data available from this station before 1984,
+the year that the dredging works finished.
+
+The regression of Calamar and Sta Helena water flow data before and after 1984 show different slopes, being higher after 1984. In average,
+the water flow from 1984-2015 at Sta Helena increased 73%, in comparison to the flow from 1981-1983.
+
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/fig0_waterflow-scatter.png" width="500">
+</p>
+
+Monthly data from 1981 to 1983 from Sta Helena was used to model water flow from 1954 to 1980, 
+assuming that the data from 1981 to 1983 at Sta Helena represents the water flow before the canal expansion of 1984, with minimal dredging impact.
+
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/fig0_waterflow-timeseries.png" width="500">
+</p>
+
+The plots show evidence that water flow at Sta Helena increases over time after 1984. Before the dredging events, water flow at Sta Helena
+represented 2-3% of the flow at Calamar. In contrast, this ratio increases up to 6% in average after 1984.
+
+This modeled data was averaged annually for the respective annual analyses.

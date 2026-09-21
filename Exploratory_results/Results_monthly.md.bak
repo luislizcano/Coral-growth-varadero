@@ -138,8 +138,8 @@ Interpretations may be biased due to assumptions are not met. Left value is corr
 |G/B           | 0.24, <0.001 | 0.40, <0.001 |-0.44, <0.001 | 0.18, <0.001|-0.38, <0.001 |
 
 ### Long-term trends
-**Test:** General additive models (GAM) \
-The GAM allows to fit non-linear trends to data.
+**Test:** General additive mixed models (GAMM) \
+The GAMM allows to fit non-linear trends to data, accounting for autocorrelated data.
 
 <p align="center">
 <img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE3_GAM_growth_monthly.svg" width="400">

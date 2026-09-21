@@ -446,385 +446,63 @@ G/B           | 0.17,0.001  | 0.30,<0.001 |-0.04,0.442  | 0.23,<0.001| 0.23,<0.0
 plt.scatter(envir_det2['WF_Helena_anom'], lumin_det2['G/B_anom'])
 
 
-# =============================================================================
-# OPTION B - Residuals
-# Time-series detrending (removing seasonality)
-# =============================================================================
-'''
-Residual correlation is appropriate if your question is:
-"Are unusually warm months associated with unusually high or low skeletal 
-density, independent of seasonality and long-term trend?"
-
-It is less appropriate if your question is:
-    "Does long-term warming explain long-term changes in skeletal density?"
-'''
-from statsmodels.tsa.stattools import acf
-
-def resid_det(df, cols):
-    df_residuals = pd.DataFrame(index=df.index)
-    
-    for col in cols:
-        # Using multiplicative or additive decomposition depending on your data structure
-        decomposition = seasonal_decompose(df[col], model='additive', period=12)
-        # Extract the residual component (un-autocorrelated anomaly)
-        df_residuals[col] = decomposition.resid
-    
-    # Drop NaNs created at the edges by the decomposition window
-    df_residuals.dropna(inplace=True)
-    return df_residuals
-
-growth_resid = resid_det(growth,['Density','Extension','Calcification'])
-lumin_resid = resid_det(lumin,['G/B'])
-envir_resid = resid_det(envir,['WF_Helena','WF_Calamar','HadISST','SOI','AMO'])
-# Test if residuals still have autocorrelation using Autocorrelation Function (ACF)
-print("Residual Autocorrelation (Lag 1):", acf(envir_resid['AMO'], nlags=1)[1])
-# Values close to 0 mean autocorrelation has been successfully mitigated.
-
-'''
-Autocorrelation values from -1 to +1.
-Values close to 0 mean autocorrelation has been successfully mitigated.
-Autocorrelation after removing seasonality on residuals:
-    Density       = 0.644
-    Extension     = 0.388
-    Calcification = 0.389
-    G/B           = 0.071
-    WF_Helena     = 0.561
-    WF_Calamar    = 0.595
-    HadISST       = 0.338
-    SOI           = 0.134
-    AMO           = 0.609
-*** Autocorrelation is still high.
-'''
 
 # =============================================================================
-# Pearson Correlation
+# =============================================================================
+# # PLOTS OF WATER DISCHARGE
+# =============================================================================
 # =============================================================================
 
-def corr(x_df,y_df,x_cols,y_cols):
-    for x in x_cols:
-        for y in y_cols:
-            r_val, p_val = pearsonr(x_df[x], y_df[y])
-            print(f"\n--- Final Results {x} vs {y} ---")
-            print(f"Correlation Coefficient (r): {r_val:.4f}")
-            print(f"Adjusted p-value: {p_val:.4e}")
+### Scatter plot of before and after 1984
+fig, ax = plt.subplots(1,1,figsize=(5, 3),sharex=True)
+ax.scatter(envir['WF_Calamar'].iloc[384:420], envir['WF_Helena'].iloc[384:420], 
+           color='#f0aa71', label='Before 1984', s=10, alpha = 0.8)
+ax.scatter(envir['WF_Calamar'].iloc[0:384], envir['WF_Helena'].iloc[0:384], 
+           color='#73a1f0', label='After 1984', s=10, alpha = 0.8)
+ax.plot(envir['WF_Calamar'].iloc[384:420], 0.0329*(envir['WF_Calamar'].iloc[384:420])-33.8,
+        color='#EB5406', lw=2,alpha = 1)
+ax.plot(envir['WF_Calamar'].iloc[0:384], 0.0497*(envir['WF_Calamar'].iloc[0:384])+13.271,
+        color='#256ce6', lw=2,alpha = 1)
 
-growth_corrs = corr(envir_resid,growth_resid,
-                    ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'],
-                    ['Density','Extension','Calcification'])
-lumin_corrs = corr(envir_resid,lumin_resid,
-                    ['WF_Helena','WF_Calamar','HadISST','SOI','AMO'],['G/B'])
-
-plt.scatter(envir_resid['HadISST'], growth_resid['Density'])
-'''
--------------------------------------------------------------------------------------
-              | WF_Helena   | WF_Calamar  | HadISST     | SOI         | AMO         |
--------------------------------------------------------------------------------------
-Density       |-0.03,<0.001 | 0.10,<0.001 |-0.03,<0.001 |-0.05,<0.001 | 0.05,<0.001 |
-Extension     |-0.08,<0.001 |-0.05,<0.001 | 0.13,<0.001 | 0.03,<0.001 | 0.12,<0.001 |
-Calcification |-0.09,<0.001 |-0.02,<0.001 | 0.13,<0.001 | 0.02,<0.001 | 0.01,<0.001 |
-G/B           | 0.07,<0.001 | 0.07,<0.001 |-0.06,<0.001 |-0.04,<0.001 | 0.06,<0.001 |
--------------------------------------------------------------------------------------
-Correlations with High sginificance, but low coefficient. 
-'''
-
-# =============================================================================
-# Cross-correlations
-# =============================================================================
-from statsmodels.tsa.stattools import ccf
-
-cross = ccf(envir_det["HadISST"], growth_det["Density"])
-
-
-# =============================================================================
-# MULTIPLE LINEAR REGRESSION
-# =============================================================================
-import statsmodels.api as sm
-
-def mlr(x_df, y_df, x_vars, y_vars):
-    X = sm.add_constant(x_df[x_vars])
-    for i in y_vars:
-        y = y_df[i]
-        model = sm.OLS(y, X).fit()
-        print("\n \n Response Variable: "+i)
-        print(model.summary())
-        
-        ## Check autocorrelation of residuals
-        plot_acf(model.resid, lags=36)
-
-mlr(envir_det, growth_det, envir_vars2, growth_vars2)
-'''
-Residuals are autocorrelated. So, go to the next step
-'''
-
-# =============================================================================
-# GLSAR (Generalized Least Squares with AR errors)
-# =============================================================================
-'''
-The rho value determines the autoregressive order (AR(rho)). This order can be
-determined not only with the ACF, but looking at the AIC an BIC values, with
-lower values prefered.
-Here, the Density showed autocorrelations at lag ~16, but the extension and 
-calcification at lag ~5. The Density may required AR with rho ~5, maybe.
-**I think this also requires linearity, which in our case the data it is not.
-'''
-
-from statsmodels.regression.linear_model import GLSAR
-
-def glsar_run(x_df, y_df, x_vars, y_vars):
-    X = sm.add_constant(x_df[x_vars])
-    for i in y_vars:
-        y = y_df[i]
-        glsar = GLSAR(y, X, rho=1)
-        results = glsar.iterative_fit(maxiter=10)
-        print(results.summary())
-
-glsar_run(envir_det.sort_values(by='Y.M', ascending=False), 
-          growth_det.sort_values(by='Y.M.', ascending=False), 
-          envir_vars2, growth_vars2)
-'''
-The coefficients and R2 are very small, although there are some variables with
-p < 0.05. This suggest is better to inspect GAMM in R.
-'''
-
-
-# =============================================================================
-# SARIMAX
-# =============================================================================
-from statsmodels.tsa.statespace.sarimax import SARIMAX
-
-def sarimax_run(x_df, y_df, x_vars, y_vars):
-    X = sm.add_constant(x_df[x_vars])
-    for i in y_vars:
-        y = y_df[i]      
-        model = SARIMAX(
-            endog=y,
-            exog=X,
-            order=(1,0,0), # rho=1
-            seasonal_order=(0,0,0,0) )
-        sarimax = model.fit()
-        print(sarimax.summary())
-        print('AIC', sarimax.aic)
-
-sarimax_run(envir_det.sort_values(by='Y.M', ascending=False), 
-          growth_det.sort_values(by='Y.M.', ascending=False), 
-          envir_vars2, growth_vars2)
-
-
-# =============================================================================
-# Generalized Additive Model (GAM)
-# =============================================================================
-## Suppose the effect of env vars are nonlinear.
-from pygam import LinearGAM, s
-
-def gam_run(x_df, y_df, x_vars, y_vars):
-    X = x_df[x_vars].values
-    for i in y_vars:
-        y = y_df[i].values
-        gam = LinearGAM(s(0)+s(1)+s(2)+s(3)+s(4)).fit(X,y)
-        print("GAM {i}", gam.summary())
-    
-    # XX = gam.generate_X_grid(term=0)
-    # plt.plot(
-    #     XX[:,0],
-    #     gam.partial_dependence(term=0))
-        
-gam_run(envir_det.sort_values(by='Y.M', ascending=False), 
-          growth_det.sort_values(by='Y.M.', ascending=False), 
-          envir_vars2, growth_vars2)
+fig.legend(fontsize=9,bbox_to_anchor=(0.44, 0.94),handletextpad=0.1)
+ax.text(11000, 100, 'y = 0.0329x - 33.8 \n $R^{2}$ = 0.76',fontsize=8,color='#EB5406')
+ax.text(3000, 500, 'y = 0.0497x + 13.271 \n $R^{2}$ = 0.85',fontsize=8,color='#256ce6')
+## Edit axes
+ax.set(ylabel='Water flow \n at Sta Helena ($m^{3}$ $s^{-1}$)')
+ax.set(xlabel='Water flow at Calamar ($m^{3}$ $s^{-1}$)')
+fig.tight_layout()
 
 
 
-##### Hasta aqui hice, lo de abajo son cosas viejas....
+fig, ax = plt.subplots(2,1,figsize=(8, 5),sharex=True)
+x = envir['Y.M.']
+ax[0].plot(x, envir['WF_Calamar'], '-', color='gray',
+            label='Calamar',lw=1,alpha = 1)
+## Second Y-axis
+ax_2 = ax[0].twinx()
+ax_2.plot(x.iloc[384:], envir['WF_Helena'].iloc[384:], '-', color='#FF8000',
+            label='Sta Helena (Before 1984)',lw=1,alpha = 1)
+ax_2.plot(x.iloc[0:384], envir['WF_Helena'].iloc[0:384], '-', color='red',
+            label='Sta Helena (After 1984)',lw=1,alpha = 1)
+## Ratio
+ax[1].plot(x, envir['WF_Helena']/envir['WF_Calamar']*100, '-', color='gray',
+            lw=1,alpha = 1)
 
+fig.legend(fontsize=9,bbox_to_anchor=(0.82, 0.95),ncol=3)
+## Edit axes
+ax[1].set_xlim([1954,2015])
+ax[0].set_ylim([1500,20000])
+ax[0].xaxis.set_minor_locator(ticker.MultipleLocator(5))
+# axes3[3,0].xaxis.set_major_locator(ticker.MultipleLocator(10))
+ax[0].set(ylabel='Water flow \n at Calamar ($m^{3}$ $s^{-1}$)')
+ax_2.set(ylabel='Water flow \n at Santa Helena ($m^{3}$ $s^{-1}$)')
+ax[1].set(ylabel='Santa Helena-Calamar \nflow ratio (%)')
+fig.text(0.86, 0.9, 'A', fontsize=10)
+fig.text(0.15, 0.44, 'B', fontsize=10)
 
-# =============================================================================
-# ## Get data for the respective period 1982-2015:
-  ## PER CORE
-# =============================================================================
-period = list(range(1982,2016))
-growth_period = []
-lumin_period = []
-for i in period:
-    yr = growth.loc[growth['Year'] == i]
-    lumyr = lumin.loc[lumin['Year'] == i]
-    growth_period.append(yr)
-    lumin_period.append(lumyr)
+fig.tight_layout()
+# fig.savefig(dir+'\\fig0_water-discharge.tiff', format='tiff', dpi=600,bbox_inches = 'tight')
 
-## Skeletal growth and luminescence
-growth_period = pd.concat(growth_period).sort_values(['Core','Year'],ascending=(True,False)).reset_index(drop=True)
-lumin_period = pd.concat(lumin_period).sort_values(['Core','Year'],ascending=(True,False)).reset_index(drop=True)
-
-### Parse environmental variables 1981-2015
-dateEnv = envir.iloc[0:35,0]#['Year','Month','Y.M']
-wf = envir.loc[0:35,:]['WF_Helena']#.interpolate()
-wf2 = envir.loc[0:35,:]['WF_Calamar']#.interpolate()
-temp = envir.loc[0:35,:]['Air_Temperature']
-soi = envir.loc[0:35,:]['SOI']
-amo = envir.loc[0:35,:]['AMO']
-wf_std = envir.loc[0:35,:]['WF_std']#.interpolate()
-temp_std = envir.loc[0:35,:]['Temp_std']
-soi_std = envir.loc[0:35,:]['SOI_std']
-amo_std = envir.loc[0:35,:]['AMO_std']
-
-wf_all = pd.concat([dateEnv,wf,wf_std],axis=1,join='inner')
-temp_all = pd.concat([dateEnv,temp,temp_std],axis=1,join='inner')
-soi_all = pd.concat([dateEnv,soi,soi_std],axis=1,join='inner')
-amo_all = pd.concat([dateEnv,amo,amo_std],axis=1,join='inner')
-
-
-# =============================================================================
-# ## Overall mean FULL TIMESERIES (Master)
-# =============================================================================
-growth_mean_all = growth.groupby(['Year']).mean(numeric_only=True).reset_index()
-growth_mean_all = growth_mean_all.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-growth_std_all = growth.groupby(['Year']).std(ddof=0,numeric_only=True).reset_index()
-growth_std_all = growth_std_all.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-lumin_mean_all = lumin.groupby(['Year']).mean(numeric_only=True).reset_index().drop(['G/B_std'],axis=1)
-lumin_mean_all = lumin_mean_all.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-lumin_std_all = lumin.groupby(['Year']).std(ddof=0,numeric_only=True).reset_index().drop(['G/B_std'],axis=1)
-lumin_std_all = lumin_std_all.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-wf_mean_all = envir[['Year','WF_Helena','WF_std']].dropna()
-temp_mean_all = envir[['Year','Air_Temperature','Temp_std']].dropna()
-soi_mean_all = envir[['Year','SOI','SOI_std']].dropna()
-amo_mean_all = envir[['Year','AMO','AMO_std']].dropna()
-
-
-# =============================================================================
-# ## Overall mean of Coral growth For Period 1982-2015
-# =============================================================================
-growth_mean = growth_period.groupby(['Year']).mean(numeric_only=True).reset_index()
-growth_mean = growth_mean.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-growth_std = growth_period.groupby(['Year']).std(ddof=0,numeric_only=True).reset_index()
-growth_std = growth_std.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-lumin_mean = lumin_period.groupby(['Year']).mean(numeric_only=True).reset_index().drop(['G/B_std'],axis=1)
-lumin_mean = lumin_mean.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-lumin_std = lumin_period.groupby(['Year']).std(ddof=0,numeric_only=True).reset_index().drop(['G/B_std'],axis=1)
-lumin_std = lumin_std.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-
-
-# =============================================================================
-# ## STANDARDIZED NORMALIZATIONS (Z-SCORES)
-# =============================================================================
-growth_var = ['Density','Extension','Calcification']
-core_index = ['VAR1','VAR2','VAR3','VAR4']
-envir_var = ['WF_Helena','WF_Calamar','Air_Temperature','SOI','AMO']
-
-## FOR EACH CORE:
-stda_growth = pd.concat([growth_period[['Core','Year']],STDAidx(growth_period,growth_var,'Core',core_index)],axis=1)
-stda_lumin = pd.concat([lumin_period[['Core','Year']],STDAidx(lumin_period,['G/B'],'Core',core_index)],axis=1)
-stda_wf = pd.concat([dateEnv,STDA(wf)],axis=1,join='inner')
-stda_wf2 = pd.concat([dateEnv,STDA(wf2)],axis=1,join='inner')
-stda_temp = pd.concat([dateEnv,STDA(temp)],axis=1,join='inner')
-stda_soi = pd.concat([dateEnv,STDA(soi)],axis=1,join='inner')
-stda_amo = pd.concat([dateEnv,STDA(amo)],axis=1,join='inner')
-
-## For the overall mean (master):
-stda_growth_mean = stda_growth.groupby(['Year']).mean(numeric_only=True).reset_index()
-stda_growth_mean = stda_growth_mean.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-stda_lumin_mean = stda_lumin.groupby(['Year']).mean(numeric_only=True).reset_index()
-stda_lumin_mean = stda_lumin_mean.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-
-## For the full timeseries
-stda_growth_all = pd.concat([growth[['Core','Year']],STDAidx(growth,growth_var,'Core',core_index)],axis=1)
-stda_lumin_all = pd.concat([lumin[['Core','Year']],STDAidx(lumin,['G/B'],'Core',core_index)],axis=1)
-stda_wf_all = pd.concat([envir['Year'],STDA(envir['WF_Helena'])],axis=1,join='inner')
-stda_wf2_all = pd.concat([envir['Year'],STDA(envir['WF_Calamar'])],axis=1,join='inner')
-stda_temp_all = pd.concat([envir['Year'],STDA(envir['Air_Temperature'])],axis=1,join='inner')
-stda_soi_all = pd.concat([envir['Year'],STDA(envir['SOI'])],axis=1,join='inner')
-stda_amo_all = pd.concat([envir['Year'],STDA(envir['AMO'])],axis=1,join='inner')
-
-# Period 1951-2015
-stda_growth_mean_full = stda_growth_all.groupby(['Year']).mean(numeric_only=True).reset_index()
-stda_growth_mean_full = stda_growth_mean_full.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-stda_growth_mean_full = stda_growth_mean_full.loc[0:64,:]
-stda_lumin_mean_full = stda_lumin_all.groupby(['Year']).mean(numeric_only=True).reset_index()
-stda_lumin_mean_full = stda_lumin_mean_full.sort_values(['Year'],ascending=(False)).reset_index(drop=True)
-stda_lumin_mean_full = stda_lumin_mean_full.loc[0:64,:]
-
-# =============================================================================
-# REGRESSIONS
-# =============================================================================
-### Check normality and Homoscedasticity
-check_assumptions(growth_mean_all,'Density','Year') ## Normal / Not Homogeneous
-check_assumptions(growth_mean_all,'Extension','Year') ## Not normal / Homogeneous
-check_assumptions(growth_mean_all,'Calcification','Year') ## Not Normal / Not Homogeneous
-check_assumptions(lumin_mean_all,'G/B','Year') ## Normal / Homogeneous
-check_assumptions(wf_mean_all,'WF_Helena','Year') ## Normal / Homogeneous
-check_assumptions(temp_mean_all,'Air_Temperature','Year') ## Normal / Homogeneous
-check_assumptions(soi_mean_all,'SOI','Year') ## Normal  / Homogeneous
-check_assumptions(amo_mean_all,'AMO','Year') ## Normal / Not Homogeneous
-check_assumptions(stda_growth_all,'Calcification','Year') ## Normal / Not Homogeneous
-
-### Regression total (1951-2015)
-dates_list = list(range(1951,2016))
-reg_den = stats_all(growth_mean_all,'Density','Year',dates_list)
-reg_ext = stats_all(growth_mean_all,'Extension','Year',dates_list)
-reg_cal = stats_all(growth_mean_all,'Calcification','Year',dates_list)
-reg_lum = stats_all(lumin_mean_all,'G/B','Year',dates_list)
-reg_wf = stats_all(wf_mean_all,'WF_Helena','Year',dates_list)
-reg_temp = stats_all(temp_mean_all,'Air_Temperature','Year',dates_list)
-reg_soi = stats_all(soi_mean_all,'SOI','Year',dates_list)
-reg_amo = stats_all(amo_mean_all,'AMO','Year',dates_list)
-
-## Detect point changes in time series data (1951-2015)
-dates_list = list(range(1954,2016))
-det_change = detect_changes(growth_mean_all,'Calcification',dates_list)
-det_change = detect_changes(lumin_mean_all,'G/B',dates_list)
-det_change = detect_changes(amo_mean_all,'AMO',dates_list)
-det_change = detect_changes(temp_mean_all,'Air_Temperature',dates_list)
-det_change = detect_changes(soi_mean_all,'SOI',dates_list)
-det_change = detect_changes(wf_mean_all,'WF_Helena',dates_list)
-
-## Trend detections
-# seg_data = growth_mean_all[growth_mean_all['Year'].isin(dates_list)]['Extension']
-# seg = Segmenter(dates_list, seg_data.tolist(), n=10)
-# seg.calculate_segments()
-# seg.plot_segments()
-
-# =============================================================================
-# REGRESSIONS PER DECADES (NOT USED)
-# =============================================================================
-### Regression per decades
-# dates_list = stda_growth_mean_full['Year'].tolist()
-# periods = ['1956-1965','1966-1975','1976-1985','1986-1995','1996-2005','2006-2015']
-# reg_den_dec = linreg(stda_growth_mean_full.loc[0:59],'Density',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-# reg_ext_dec = linreg(stda_growth_mean_full.loc[0:59],'Extension',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-# reg_cal_dec = linreg(stda_growth_mean_full.loc[0:59],'Calcification',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-# reg_lum_dec = linreg(stda_lumin_mean_full.loc[0:59],'G/B',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-# reg_wf_dec = linreg(stda_wf_all.loc[0:29],'WaterFlow',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-# reg_temp_dec = linreg(stda_temp_all.loc[0:59],'Temperature',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-# reg_soi_dec = linreg(stda_soi_all.loc[0:59],'SOI',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-# reg_amo_dec = linreg(stda_amo_all.loc[0:59],'AMO',dates_list,'Year',10).sort_values(['Period'],ascending=(True))
-
-# ## Mean per decades:
-# [growth_mean_deca,growth_std_deca] = mean_range(growth_mean_all.loc[0:65,:],growth_mean_all.loc[0:65,:]['Year'],'Year',10)
-# [lumin_mean_deca,lumin_std_deca] = mean_range(lumin_mean_all,lumin_mean_all['Year'],'Year',10)
-# [wf_mean_deca,wf_std_deca] = mean_range(wf_mean_all,wf_mean_all['Year'],'Year',10)
-# [temp_mean_deca,temp_std_deca] = mean_range(temp_mean_all,temp_mean_all['Year'],'Year',10)
-# [soi_mean_deca,soi_std_deca] = mean_range(soi_mean_all,soi_mean_all['Year'],'Year',10)
-# [amo_mean_deca,amo_std_deca] = mean_range(amo_mean_all,amo_mean_all['Year'],'Year',10)
-
-# ## Mean per decades // STANDARDIZED:
-# [stda_growth_mean_deca,stda_growth_std_deca] = mean_range(stda_growth_mean_full.loc[0:65,:],stda_growth_mean_full.loc[0:65,:]['Year'],'Year',10)
-# [stda_lumin_mean_deca,stda_lumin_std_deca] = mean_range(stda_lumin_mean_full,stda_lumin_mean_full['Year'],'Year',10)
-# [stda_wf_mean_deca,stda_wf_std_deca] = mean_range(stda_wf_all,stda_wf_all['Year'],'Year',10)
-# [stda_temp_mean_deca,stda_temp_std_deca] = mean_range(stda_temp_all,stda_temp_all['Year'],'Year',10)
-# [stda_soi_mean_deca,stda_soi_std_deca] = mean_range(stda_soi_all,stda_soi_all['Year'],'Year',10)
-# [stda_amo_mean_deca,stda_amo_std_deca] = mean_range(stda_amo_all,stda_amo_all['Year'],'Year',10)
-
-# =============================================================================
-# Mean and Stdv of growth variables, before and after 1981
-# =============================================================================
-## Mean Of period 1981-2015:
-growth_mean_after = (growth_mean_all.loc[0:34,:]).mean(numeric_only=True)
-growth_std_after = (growth_mean_all.loc[0:34,:]).std(ddof=0,numeric_only=True)
-lumin_mean_after = (lumin_mean_all.loc[0:34,:]).mean(numeric_only=True)
-lumin_std_after = (lumin_mean_all.loc[0:34,:]).std(ddof=0,numeric_only=True)
-## Mean Of period 1951-1981:
-growth_mean_before = (growth_mean_all.loc[34:64,:]).mean(numeric_only=True)
-growth_std_before = (growth_mean_all.loc[34:64,:]).std(ddof=0,numeric_only=True)
-lumin_mean_before = (lumin_mean_all.loc[34:64,:]).mean(numeric_only=True)
-lumin_std_before = (lumin_mean_all.loc[34:64,:]).std(ddof=0,numeric_only=True)
 
 
 # =============================================================================
