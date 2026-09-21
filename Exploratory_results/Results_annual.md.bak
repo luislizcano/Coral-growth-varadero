@@ -203,14 +203,14 @@ The regression of Calamar and Sta Helena water flow data before and after 1984 s
 the water flow from 1984-2015 at Sta Helena increased 73%, in comparison to the flow from 1981-1983.
 
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/fig0_waterflow-scatter.png" width="500">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE0_waterflow-scatter.png" width="500">
 </p>
 
 Monthly data from 1981 to 1983 from Sta Helena was used to model water flow from 1954 to 1980, 
 assuming that the data from 1981 to 1983 at Sta Helena represents the water flow before the canal expansion of 1984, with minimal dredging impact.
 
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/fig0_waterflow-timeseries.png" width="500">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE0_waterflow-timeseries.png" width="500">
 </p>
 
 The plots show evidence that water flow at Sta Helena increases over time after 1984. Before the dredging events, water flow at Sta Helena

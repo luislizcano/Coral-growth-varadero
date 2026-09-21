@@ -210,7 +210,7 @@ Monthly data from 1981 to 1983 from Sta Helena was used to model water flow from
 assuming that the data from 1981 to 1983 at Sta Helena represents the water flow before the canal expansion of 1984, with minimal dredging impact.
 
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE0_waterflow-timeseries.png" width="500">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE0_waterflow-timeseries.png" width="700">
 </p>
 
 The plots show evidence that water flow at Sta Helena increases over time after 1984. Before the dredging events, water flow at Sta Helena
