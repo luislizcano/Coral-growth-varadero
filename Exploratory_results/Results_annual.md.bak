@@ -192,3 +192,28 @@ Water flow at Sta Helena increases over time after 1984 as the WF at Calamar is 
 Calamar (and the Magdalena River) to Sta Helena and into the Bay.
 
 This is a strong evidence to continue analysis per periods.
+
+### Water flows of the Canal del Dique
+The Canal del Dique have water flow data available from 1941 to the present at the Calamar station, which is located at the Canal del Dique
+bifurcation from the Magdalena river. A closer station to Cartagena Bay is Santa Helena, which have data from 1981 to the present.
+This station was born in the same year that the dredging works started. So there is not much data available from this station before 1984,
+the year that the dredging works finished.
+
+The regression of Calamar and Sta Helena water flow data before and after 1984 show different slopes, being higher after 1984. In average,
+the water flow from 1984-2015 at Sta Helena increased 73%, in comparison to the flow from 1981-1983.
+
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/fig0_waterflow-scatter.png" width="500">
+</p>
+
+Monthly data from 1981 to 1983 from Sta Helena was used to model water flow from 1954 to 1980, 
+assuming that the data from 1981 to 1983 at Sta Helena represents the water flow before the canal expansion of 1984, with minimal dredging impact.
+
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/fig0_waterflow-timeseries.png" width="500">
+</p>
+
+The plots show evidence that water flow at Sta Helena increases over time after 1984. Before the dredging events, water flow at Sta Helena
+represented 2-3% of the flow at Calamar. In contrast, this ratio increases up to 6% in average after 1984.
+
+This modeled data was averaged annually for the respective annual analyses.
