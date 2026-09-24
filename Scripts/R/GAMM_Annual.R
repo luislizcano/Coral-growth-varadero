@@ -151,16 +151,28 @@ ggsave(
   units = "mm",
   dpi = 300
 )
-
+## Density, Extension, Calcification, G_B
 
 
 # Individual GAMMs --------------------------------------------------------
 
+## add index before/after 1984
+df$After <- ifelse(df$Year >= 1984, 1, 0) 
+## Adding lags
+df$WF_Calamar_lag1 <- dplyr::lag(df$WF_Calamar, 1)
+df$WF_Calamar_lag2 <- dplyr::lag(df$WF_Calamar, 2)
+
+## Model
 gamm1 <- gamm(
-  Density ~ s(Year, k = 10) + s(WF_Calamar, k = 10),
+  G_B ~ s(Year, k = 10) + s(WF_Helena * After, k = 10),
   correlation = corAR1(form = ~ Year),
   data = df)
 
+## Results
 summary(gamm1$gam) # GAM model
 summary(gamm1$lme)
-plot(gamm1$gam, pages = 1)
+AIC(gamm1$lme) ## AIC
+plot(gamm1$gam, pages = 1) ## plot trends
+
+## find the slope (if linear)
+lm(G_B ~ SOI + Year, data = df)

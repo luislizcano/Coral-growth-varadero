@@ -219,57 +219,126 @@ represented 2-3% of the flow at Calamar. In contrast, this ratio increases up to
 This modeled data was averaged annually for the respective annual analyses.
 
 ### GAMM 
+#### Individual comparisons
 We will use individual comparisons among growth parameters and environmental variables (added to time; e.g. time series showed above), 
 using GAMMs accounting for autocorrelations and potential non-linearities.
 
-**Water flow at Santa Helena 1954-2015**
+Here, we are not testing for temporal patterns, but for association between environmental variables and growth parameters.
+
+**Water flow at Santa Helena 1954-2015** \
 Both time and WF_Helena are significantly associated with G/B, after accounting for the other variable. The temporal relationship estimated 
 by the GAM is essentially linear (edf = 1.0). This model establishes an association, not causation. The model explains approximately 48% 
 of the variation in G/B, after accounting for model complexity. The linear trend of G/B is decreasing and WF_Helena is increasing.
 
-|Variable      | Intercept | Time            |  WF_Helena      |  R2  |
-|--------------|-----------|-----------------|-----------------|------|
-|Density       |  0.73     | edf=1.0; p=0.037| edf=1.0; p=0.846| 0.19 |
-|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.553| 0.35 |
-|Calcification |  0.77     | edf=1.0; p=0.029| edf=1.0; p=0.251| 0.05 |
-|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 |
+|Variable      | Intercept | Time            |  WF_Helena      |  R2  | AIC  |
+|--------------|-----------|-----------------|-----------------|------|------|
+|Density       |  0.73     | edf=1.0; p=0.037| edf=1.0; p=0.846| 0.19 | -179 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.553| 0.35 |  -84 |
+|Calcification |  0.77     | edf=1.0; p=0.029| edf=1.0; p=0.251| 0.05 | -110 |
+|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 | -400 |
 
-**Water flow at Calamar 1954-2015**
+**Water flow at Calamar 1954-2015** \
 Not much difference from what was observed with Sta Helena data.
 
-|Variable      | Intercept | Time            |  WF_Calamar     |  R2  |
-|--------------|-----------|-----------------|-----------------|------|
-|Density       |  0.73     | edf=1.0; p=0.026| edf=1.0; p=0.693| 0.20 |
-|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.556| 0.35 |
-|Calcification |  0.77     | edf=1.9; p=0.034| edf=1.0; p=0.421| 0.10 |
-|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 |
+|Variable      | Intercept | Time            |  WF_Calamar     |  R2  | AIC  |
+|--------------|-----------|-----------------|-----------------|------|------|
+|Density       |  0.73     | edf=1.0; p=0.026| edf=1.0; p=0.693| 0.20 | -179 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.556| 0.35 |  -84 |
+|Calcification |  0.77     | edf=1.9; p=0.034| edf=1.0; p=0.421| 0.10 | -109 |
+|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 | -405 |
 
-**HadISST 1954-2015**
-R2 for G/B was higher than with waterflow data, but the added HadISST data was not significant.
+**HadISST 1954-2015** \
+R2 for G/B was higher than with waterflow data. There is still an independent temporal pattern (non-linear), but no
+association with the added HadISST data.
 
-|Variable      | Intercept | Time            |  HadISST        |  R2  |
-|--------------|-----------|-----------------|-----------------|------|
-|Density       |  0.73     | edf=1.0; p=0.023| edf=1.0; p=0.591| 0.19 |
-|Extension     |  1.07     | edf=7.7; p<0.001| edf=1.0; p=0.284| 0.33 |
-|Calcification |  0.77     | edf=1.9; p=0.017| edf=1.0; p=0.215| 0.05 |
-|G/B           |  1.02     | edf=3.2; p<0.001| edf=1.0; p=0.564| 0.61 |
+|Variable      | Intercept | Time            |  HadISST        |  R2  | AIC  |
+|--------------|-----------|-----------------|-----------------|------|------|
+|Density       |  0.73     | edf=1.0; p=0.023| edf=1.0; p=0.591| 0.19 | -179 |
+|Extension     |  1.07     | edf=7.7; p<0.001| edf=1.0; p=0.284| 0.33 |  -85 |
+|Calcification |  0.77     | edf=1.9; p=0.017| edf=1.0; p=0.215| 0.05 | -110 |
+|G/B           |  1.02     | edf=3.2; p<0.001| edf=1.0; p=0.564| 0.61 | -376 |
 
-**SOI 1954-2015**
-R2 for G/B was higher than above variables.
+**SOI 1954-2015** \
+R2 for G/B was higher than above variables. G/B exhibited a significant nonlinear temporal pattern over the 
+study period (edf = 3.4, p < 0.001). SOI was significantly associated with G/B (edf = 1.0, p < 0.001), 
+with the fitted relationship being approximately linear (G/B increases as SOI increases??).
+The model explains approximately 67% of the variation in G/B.
 
-|Variable      | Intercept | Time            |  SOI            |  R2  |
-|--------------|-----------|-----------------|-----------------|------|
-|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.288| 0.22 |
-|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.512| 0.35 |
-|Calcification |  0.77     | edf=3.2; p=0.081| edf=1.0; p=0.038| 0.09 |
-|G/B           |  1.02     | edf=3.4; p<0.001| edf=1.0; p<0.001| 0.67 |
+|Variable      | Intercept | Time            |  SOI            |  R2  | AIC  |
+|--------------|-----------|-----------------|-----------------|------|------|
+|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.288| 0.22 | -180 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.512| 0.35 |  -84 |
+|Calcification |  0.77     | edf=3.2; p=0.081| edf=1.0; p=0.038| 0.09 | -113 |
+|G/B           |  1.02     | edf=3.4; p<0.001| edf=1.0; p<0.001| 0.67 | -389 |
 
-**AMO 1954-2015**
-R2 for G/B was higher than above variables.
+**AMO 1954-2015** \
+Adding AMO changed the observed patterns.
+For Extension, the result suggests that AMO and the temporal structure of Extension are related, showing a significant
+linear association.
 
-|Variable      | Intercept | Time            |  SOI            |  R2  |
-|--------------|-----------|-----------------|-----------------|------|
-|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.288| 0.22 |
-|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.512| 0.35 |
-|Calcification |  0.77     | edf=3.2; p=0.081| edf=1.0; p=0.038| 0.09 |
-|G/B           |  1.02     | edf=3.4; p<0.001| edf=1.0; p<0.001| 0.67 |
+|Variable      | Intercept | Time            |  AMO            |  R2  | AIC  |
+|--------------|-----------|-----------------|-----------------|------|------|
+|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.884| 0.19 | -178 |
+|Extension     |  1.07     | edf=1.0; p=0.533| edf=1.0; p<0.001| 0.18 |  -87 |
+|Calcification |  0.77     | edf=1.0; p<0.001| edf=1.0; p=0.072| 0.07 | -111 |
+|G/B           |  1.02     | edf=3.3; p<0.001| edf=1.0; p=0.376| 0.62 | -376 |
+
+**In conclusion** \
+Four comparisons were found significants: \
+* Extension ~ s(Year) + s(AMO)
+* G_B ~ s(Year) + s(WF_Helena)
+* G_B ~ s(Year) + s(WF_Calamar)
+* G_B ~ s(Year) + s(SOI)
+
+First, I tested the relationship between discharge and coral growth following the 1984 dredging, using
+a pre/post-1984 interaction model: \
+
+* G_B ~ s(Year) + WF_Helena * After ,
+
+The WF_Helena had a significant positive association with G/B (p = 0.016) before 1984, and the change of G/B 
+units per m<sup>3</sup> s<sup>-1</sup> was 9.9x10<sup>-5</sup>. Whereas, the post-1984 slope was not statistically
+different from the pre-1984 (p = 0.902), where the change of G/B units per m<sup>3</sup> s<sup>-1</sup> was 
+9.4x10<sup>-5</sup>. There was a decrease in the slope, but not significant according to these results.
+There is a temporal effect on G/B, after accounting for water discharge (edf=1.9, p<0.001). The model showed an R2 of 0.61.
+Therefore, we can say that there is an overall association between Santa Helena discharge and G/B, but not any
+significant changes after 1984.
+
+At this point, it is interesting to test if there is any lagged relationship among these variables to find
+any potential delayed responses (for example lag1 and lag2):
+
+|Relationship         | Intercept | Time            |  AMO            |  R2  | AIC  |
+|---------------------|-----------|-----------------|-----------------|------|------|
+|Extension-AMO(lag0)  |  1.07     | edf=1.0; p=0.533| edf=1.0; p<0.001| 0.18 |  -87 |
+|Extension-AMO(lag1)  |  1.07     | edf=1.0; p=0.373| edf=1.0; p<0.001| 0.21 |  -87 |
+|Extension-AMO(lag2)  |  1.07     | edf=3.3; p=0.068| edf=1.0; p=0.189| 0.25 |  -80 |
+
+|Relationship         | Intercept | Time            |  AMO            |  R2  | AIC  |
+|---------------------|-----------|-----------------|-----------------|------|------|
+|G/B-SOI(lag0)        |  1.02     | edf=3.4; p<0.001| edf=1.0; p<0.001| 0.67 | -389 |
+|G/B-SOI(lag1)        |  1.02     | edf=2.4; p<0.001| edf=1.0; p=0.229| 0.56 | -370 |
+|G/B-SOI(lag2)        |  1.02     | edf=2.7; p<0.001| edf=1.0; p=0.213| 0.58 | -363 |
+
+|Relationship         | Intercept | Time            |  WF_Helena      |  R2  | AIC  |
+|---------------------|-----------|-----------------|-----------------|------|------|
+|G/B-WF_Helena(lag0)  |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 | -400 |
+|G/B-WF_Helena(lag1)  |  1.02     | edf=2.9; p<0.001| edf=1.0; p=0.891| 0.59 | -368 |
+|G/B-WF_Helena(lag2)  |  1.02     | edf=2.9; p<0.001| edf=1.0; p=0.214| 0.59 | -363 |
+
+|Relationship         | Intercept | Time            |  WF_Calamar     |  R2  | AIC  |
+|---------------------|-----------|-----------------|-----------------|------|------|
+|G/B-WF_Calamar(lag0) |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 | -405 |
+|G/B-WF_Calamar(lag1) |  1.02     | edf=2.6; p<0.001| edf=1.0; p=0.165| 0.57 | -370 |
+|G/B-WF_Calamar(lag2) |  1.02     | edf=3.0; p<0.001| edf=1.0; p=0.138| 0.61 | -364 |
+
+These results did not show significant associations with variables at lag1 and lag2. Only the Extension and AMO at lag1 was 
+sginificant, but given that AMO is a multidecadal oscillation pattern it is not clear if at lag1 is of consideration.
+
+Now, we can continue and elaborate more complex questions, like *Does SOI still matter after accounting for discharge?*
+Then we will have to test a model like this: \
+* G_B ~ s(Year) + s(SOI) + s(WF_Helena)
+* G_B ~ s(Year) + s(SOI) + s(WF_Calamar)
+
+|Variable   | Intercept | Time            |  SOI            |  WF             |  R2  | AIC  |
+|-----------|-----------|-----------------|-----------------|-----------------|------|------|
+|G/B-Helena |  1.01     | edf=1.8; p<0.001| edf=1.0; p=0.366| edf=1.0; p<0.001| 0.61 | -397 |
+|G/B-Calamar|  1.01     | edf=1.8; p<0.001| edf=1.0; p=0.366| edf=1.0; p<0.001| 0.61 | -397 |
