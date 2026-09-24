@@ -63,8 +63,6 @@
 |SOI           | 1.301 *|
 |AMO           | 0.576 *|
 
-
-
 ## Data treatment
 
 ## Detrending (Z-scores)
@@ -330,11 +328,11 @@ any potential delayed responses (for example lag1 and lag2):
 |G/B-WF_Calamar(lag1) |  1.02     | edf=2.6; p<0.001| edf=1.0; p=0.165| 0.57 | -370 |
 |G/B-WF_Calamar(lag2) |  1.02     | edf=3.0; p<0.001| edf=1.0; p=0.138| 0.61 | -364 |
 
-These results did not show significant associations with variables at lag1 and lag2. Only the Extension and AMO at lag1 was 
-sginificant, but given that AMO is a multidecadal oscillation pattern it is not clear if at lag1 is of consideration.
+These results did not show significant associations with variables at lag1 and lag2. Only the Extension and AMO-lag1 was 
+significant, but it did not improved the model (AIC = -87).
 
-Now, we can continue and elaborate more complex questions, like *Does SOI still matter after accounting for discharge?*
-Then we will have to test a model like this: \
+Now, after exploring lags, we can continue and elaborate more complex questions, 
+like *Does SOI still matter after accounting for discharge?* Then we will have to test a model like this: \
 * G_B ~ s(Year) + s(SOI) + s(WF_Helena)
 * G_B ~ s(Year) + s(SOI) + s(WF_Calamar)
 
@@ -342,3 +340,30 @@ Then we will have to test a model like this: \
 |-----------|-----------|-----------------|-----------------|-----------------|------|------|
 |G/B-Helena |  1.01     | edf=1.8; p<0.001| edf=1.0; p=0.366| edf=1.0; p<0.001| 0.61 | -397 |
 |G/B-Calamar|  1.02     | edf=1.0; p<0.001| edf=1.6; p=0.462| edf=1.0; p<0.001| 0.49 | -402 |
+
+The association between G/B and SOI was not retained after accounting for water discharge, 
+whereas the association with water discharge remained significant. SOI and water discharge are correlated
+weakly (Spearman r = 0.26, p = 0.04), so the dissapearance of SOI effect is probabl not due to collinearity.
+The result is consistent with WF_Helena containing more of the information relevant to G/B than SOI does 
+once both are considered simultaneously.
+
+### Wavelet analysis
+Wavelet analysis is particularly useful for time series whose behavior changes through time, especially when the 
+dominant frequencies or periodicities are not constant. Here we test the wavelet transform coherence (WTC) and
+cross-wavelet transform (XTC) among two time series. The WTC basically tell us where two timeseries show a consistent 
+relationship at a particular period. The XWT tell us if they share strong oscillatory power.
+
+The wavelet analysis were made for each pair of coral and environmental variables. The two timeseries showing the most
+interesting results were the G/B and Water flow (Sta Helena and Calamar). I used monthly and deseasonalized data for these
+analyses, because it increase the resolution (better than using annual data), even if we are not focusing on seasonal patterns.
+
+Left image is waterflow at Calamar and right is at Sta Helena.
+
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Scripts/python/wavelet_figures/Calamar-Lumin_dash_monthly_detr.png" width="400">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Scripts/python/wavelet_figures/Helena-Lumin_dash_monthly_detr.png" width="400">
+</p>
+
+There is significant coherence between the two timeseries in the period 1975-2015 in the scale of 2-5 years (in-phase). The areas
+of high common power are are visualized in the XWT plot. In other words, the G/B and Waterflow covaries at the 1-4 year scales
+bewteen 1970-1990, then covaries at 2-5 year scales between 1990-2015.
