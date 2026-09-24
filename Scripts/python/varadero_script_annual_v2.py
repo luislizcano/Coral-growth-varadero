@@ -1279,41 +1279,41 @@ tx = lum_m["Y.M"].values
 ty = env_m["Y.M"][:-1].values
 
 
-ts_gb = pyleo.Series(time=tx, value=x, time_unit='yr', label='G/B',verbose=False,
+ts1 = pyleo.Series(time=tx, value=x, time_unit='yr', label='G/B',verbose=False,
                      value_name = r'$Skeletal luminescence$',value_unit='G/B')
-ts_wf = pyleo.Series(time=ty, value=y, time_unit='yr', label='WF',verbose=False,
+ts2 = pyleo.Series(time=ty, value=y, time_unit='yr', label='WF',verbose=False,
                      value_name = r'$Water flow$',value_unit=r'$m_3$ $s_-1$')
 
 ## Plot wavelet transform
-ts_gb.wavelet(method='cwt').plot()
-ts_wf.wavelet(method='cwt').plot()
+ts1.wavelet(method='cwt').plot()
+ts2.wavelet(method='cwt').plot()
 
 ## It change the scales of the scalogram.
 ## First arg changes the Amplitude scale, the second arg changes the Y-scale
 ## Use fmax = 2 if data is deseasonalized, fmax = 12 for seasonalized data.
 ## The scales of interest are determined by fmin, if want to focus on
 ## scales of 1-10 year cycles use fmin = 1/10. The higher nf, the smoother the plot.
-ts_wf_scl = ts_wf.wavelet(freq_kwargs={'fmin':1/20,'fmax':6,'nf':100})
-ts_wf_scl.plot()
+ts2_scl = ts2.wavelet(freq_kwargs={'fmin':1/20,'fmax':6,'nf':100})
+ts2_scl.plot()
 
-## Plot significance
-ts_wf_sig = ts_wf_scl.signif_test(method='CN',number = 1000)
-ts_wf_sig.plot()
+## Plot significance of scalogram
+ts2_sig = ts2_scl.signif_test(method='CN',number = 1000)
+ts2_sig.plot()
 
-## Spectral plot
-psd = ts_wf.spectral(method='wwz')
+## Power spectral plot
+psd = ts2.spectral(method='wwz')
 psd.beta_est().plot()
 
 #### Wavelet transform coherence between two series
-wf_gb = ts_wf.wavelet_coherence(ts_gb,method='wwz')
-fig, ax = wf_gb.plot()
+wwz = ts2.wavelet_coherence(ts1,method='wwz')
+fig, ax = wwz.plot()
 
-## Significance
-wf_gb_sig = wf_gb.signif_test(method='CN',number=200)
-fig, ax = wf_gb_sig.plot()
+## WWZ Significance
+wwz_sig = wwz.signif_test(method='CN',number=200)
+fig, ax = wwz_sig.plot()
 
 ## Dashboard
-wf_gb_sig.dashboard()
+wwz_sig.dashboard()
 
 ## Save figure
-wf_gb_sig.dashboard(savefig_settings={'path':'./wf-gb_dash_Helena_monthly.tif','dpi':600})
+wwz_sig.dashboard(savefig_settings={'path':'./wf-gb_dash_Helena_monthly.tif','dpi':600})

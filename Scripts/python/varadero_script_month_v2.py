@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+^# -*- coding: utf-8 -*-
 """
 Created on Sat Mar  6 18:16:04 2021
 
@@ -46,9 +46,9 @@ envir_data = pd.ExcelFile('Data_processed\\env_monthly.xlsx')
 lumin_data.sheet_names
 
 ## You can load data by number of sheet
-growth = coral_data.parse(1).iloc[0:744]#.drop([96,97,98]).reset_index(drop=True) ## Growth data
-lumin = lumin_data.parse(1) ## Luminescence data
-envir = envir_data.parse(0) ## Environmental data
+growth = coral_data.parse(1).iloc[0:744].sort_values('Y.M.').reset_index(drop=True)
+lumin = lumin_data.parse(1).sort_values('Y.M.').reset_index(drop=True)
+envir = envir_data.parse(0).sort_values('Y.M.').reset_index(drop=True)
 # print('Number of rows and columns:',growth.shape)
 
 ## Check if there is missing data
@@ -346,13 +346,13 @@ def corr(x_df,y_df,x_cols,y_cols):
             print(f"Adjusted p-value: {p_val:.3f}")
 
 ## Prepare data >1984
-growth_det2 = growth_det.iloc[0:384,:]
-lumin_det2 = lumin_det.iloc[0:384,:]
-envir_det2 = envir_det.iloc[0:384,:]
+growth_det2 = growth_det.iloc[360:,:]
+lumin_det2 = lumin_det.iloc[360:,:]
+envir_det2 = envir_det.iloc[360:,:]
 ## Prepare data <1984
-growth_det3 = growth_det.iloc[384:,:]
-lumin_det3 = lumin_det.iloc[384:,:]
-envir_det3 = envir_det.iloc[384:,:]
+growth_det3 = growth_det.iloc[0:360,:]
+lumin_det3 = lumin_det.iloc[0:360,:]
+envir_det3 = envir_det.iloc[0:360,:]
 
 ## Variables
 growth_vars = ['Density','Extension','Calcification']
@@ -453,15 +453,17 @@ plt.scatter(envir_det2['WF_Helena_anom'], lumin_det2['G/B_anom'])
 # =============================================================================
 # =============================================================================
 
-### Scatter plot of before and after 1984
+# =============================================================================
+# ### Scatter plot of before and after 1984
+# =============================================================================
 fig, ax = plt.subplots(1,1,figsize=(5, 3),sharex=True)
-ax.scatter(envir['WF_Calamar'].iloc[384:420], envir['WF_Helena'].iloc[384:420], 
+ax.scatter(envir['WF_Calamar'].iloc[324:372], envir['WF_Helena'].iloc[324:372], 
            color='#f0aa71', label='Before 1984', s=10, alpha = 0.8)
-ax.scatter(envir['WF_Calamar'].iloc[0:384], envir['WF_Helena'].iloc[0:384], 
+ax.scatter(envir['WF_Calamar'].iloc[372:], envir['WF_Helena'].iloc[372:], 
            color='#73a1f0', label='After 1984', s=10, alpha = 0.8)
-ax.plot(envir['WF_Calamar'].iloc[384:420], 0.0329*(envir['WF_Calamar'].iloc[384:420])-33.8,
+ax.plot(envir['WF_Calamar'].iloc[324:372], 0.0329*(envir['WF_Calamar'].iloc[324:372])-33.8,
         color='#EB5406', lw=2,alpha = 1)
-ax.plot(envir['WF_Calamar'].iloc[0:384], 0.0497*(envir['WF_Calamar'].iloc[0:384])+13.271,
+ax.plot(envir['WF_Calamar'].iloc[372:], 0.0497*(envir['WF_Calamar'].iloc[372:])+13.271,
         color='#256ce6', lw=2,alpha = 1)
 
 fig.legend(fontsize=9,bbox_to_anchor=(0.44, 0.94),handletextpad=0.1)
@@ -471,18 +473,21 @@ ax.text(3000, 500, 'y = 0.0497x + 13.271 \n $R^{2}$ = 0.85',fontsize=8,color='#2
 ax.set(ylabel='Water flow \n at Sta Helena ($m^{3}$ $s^{-1}$)')
 ax.set(xlabel='Water flow at Calamar ($m^{3}$ $s^{-1}$)')
 fig.tight_layout()
+# fig.savefig(dir+'\\fig0_waterflow-scatter.tiff', format='tiff', dpi=600,bbox_inches = 'tight')
 
 
-
+# =============================================================================
+# ### Time series with modeled before data.
+# =============================================================================
 fig, ax = plt.subplots(2,1,figsize=(8, 5),sharex=True)
 x = envir['Y.M.']
 ax[0].plot(x, envir['WF_Calamar'], '-', color='gray',
             label='Calamar',lw=1,alpha = 1)
 ## Second Y-axis
 ax_2 = ax[0].twinx()
-ax_2.plot(x.iloc[384:], envir['WF_Helena'].iloc[384:], '-', color='#FF8000',
+ax_2.plot(x.iloc[0:373], envir['WF_Helena'].iloc[0:373], '-', color='#FF8000',
             label='Sta Helena (Before 1984)',lw=1,alpha = 1)
-ax_2.plot(x.iloc[0:384], envir['WF_Helena'].iloc[0:384], '-', color='red',
+ax_2.plot(x.iloc[372:], envir['WF_Helena'].iloc[372:], '-', color='red',
             label='Sta Helena (After 1984)',lw=1,alpha = 1)
 ## Ratio
 ax[1].plot(x, envir['WF_Helena']/envir['WF_Calamar']*100, '-', color='gray',
@@ -501,7 +506,7 @@ fig.text(0.86, 0.9, 'A', fontsize=10)
 fig.text(0.15, 0.44, 'B', fontsize=10)
 
 fig.tight_layout()
-# fig.savefig(dir+'\\fig0_water-discharge.tiff', format='tiff', dpi=600,bbox_inches = 'tight')
+# fig.savefig(dir+'\\fig0_waterflow-timeseries.tiff', format='tiff', dpi=600,bbox_inches = 'tight')
 
 
 
@@ -515,7 +520,7 @@ plt0 = sns.lineplot(y=[4,4], x=[1982,2015], ax=axes0) #VAR1
 plt0 = sns.lineplot(y=[3,3], x=[1951,2015]) #VAR2
 plt0 = sns.lineplot(y=[2,2], x=[1942,2015]) #VAR3
 plt0 = sns.lineplot(y=[1,1], x=[1950,2015]) #VAR4
-plt0 = sns.lineplot(y=[0,0], x=[1950,2015],color='black') #MEAN
+plt0 = sns.lineplot(y=[0,0], x=[1954,2015],color='black') #MEAN
 
 axes0.set_yticks([0,1,2,3,4])
 axes0.set_yticklabels(['Mean','VAR4','VAR3','VAR2','VAR1'])
@@ -532,6 +537,10 @@ axes0.set_ylim([-0.8,4.8])
 
 # =============================================================================
 ####### FIG 3. STDA Growth data (All data)
+## for original units/values
+plt_gr = coral_data.parse(0)#.drop
+plt_lu = lumin_data.parse(0)
+
 plt.style.use('seaborn-v0_8')
 # plt.style.use('default')
 fig3, axes3 = plt.subplots(4, 2, figsize=(8,7), sharex=True)
@@ -545,18 +554,6 @@ fig3, axes3 = plt.subplots(4, 2, figsize=(8,7), sharex=True)
 # plt_amo = stda_amo_all
 # plt_gr_mn = stda_growth_mean_full
 # plt_lu_mn = stda_lumin_mean_full
-
-## for original units/values
-plt_gr = growth
-plt_lu = lumin
-plt_wf = wf_all
-plt_te = temp_mean_all
-plt_soi= soi_mean_all
-plt_amo = amo_mean_all
-plt_gr_mn = growth_mean_all[0:66]
-plt_lu_mn = lumin_mean_all
-## Put all the env vars in a list
-plt_env_vars = [plt_wf,plt_te,plt_soi,plt_amo]
 
 ## for programmatic coding of subplots
 axx = [0,0,0,0,1,1,1,1]
@@ -572,28 +569,22 @@ for i in (range(len(lbl_gr))):
     plt3 = sns.lineplot(data=plt_gr, y=lbl_gr[i], x="Year",hue='Core',
                         ax=axes3[axy[i],0],linewidth=0.7)
     ## Mean:
-    plt3 = sns.lineplot(data=plt_gr_mn,y=lbl_gr[i],x="Year",
+    plt3 = sns.lineplot(data=growth,y=lbl_gr[i],x="Year",
                         ax=axes3[axy[i],0],color='black',label='Mean')
 
 ## Luminescence per core:
 plt3 = sns.lineplot(data=plt_lu, y="G/B", x="Year",hue='Core',
                     ax=axes3[3,0],linewidth=0.7)
 ## Luminescence Mean:
-plt3 = sns.lineplot(data=plt_lu_mn, y="G/B", x="Year",color='black',
+plt3 = sns.lineplot(data=lumin, y="G/B", x="Year",color='black',
                     ax=axes3[3,0],label='Mean')
 
 ## Environmental data:
-lbl_env = ['WaterFlow','Temperature','SOI','AMO']
-lbl_std = ['WF_std','Temp_std','SOI_std','AMO_std']
+lbl_env = ['WF_Helena','HadISST','SOI','AMO']
 for i in (range(len(lbl_env))):
     ## Mean
-    plt3 = sns.lineplot(data=plt_env_vars[i], y=lbl_env[i], x="Year",
+    plt3 = sns.lineplot(data=envir, y=lbl_env[i], x="Year",
                         ax=axes3[axy[i],1])
-    ## Add Error of Environmental variables:
-    axes3[axy[i],1].fill_between(
-        plt_env_vars[i]['Year'],plt_env_vars[i][lbl_env[i]]+plt_env_vars[i][lbl_std[i]],
-        plt_env_vars[i][lbl_env[i]]-plt_env_vars[i][lbl_std[i]],
-        facecolor='#1f77b4',alpha=0.3)
 
 ## Draw lines of Change point detection
 ## Here are all the years with changing points
@@ -978,20 +969,14 @@ figE5.tight_layout()
 
 
 # =============================================================================
-####### FIG E6. Cross-Wavelet Transform
+####### FIG E6. Cross-Wavelet Transform (THIS WAS FOR ANNUAL DATA)
 import pyleoclim as pyleo
 
 # Load your data
-# x = stda_lumin_mean['G/B'].values
-# y = stda_wf['WF_Helena'][:-1].values
-# tx = stda_lumin_mean["Year"].values
-# ty = stda_wf2["Year"][:-1].values
-y = stda_lumin_mean_full['G/B'].values
-# y = stda_wf2_all['WF_Calamar'].values
-ty = stda_lumin_mean_full["Year"].values
-# ty = stda_wf2_all["Year"].values
-x = stda_growth_mean_full['Density'].values
-tx = stda_growth_mean_full["Year"].values
+y = lumin_det['G/B'].values
+ty = lumin_det["Y.M."].values
+x = growth_det['Density'].values
+tx = growth_det["Y.M."].values
 
 ts_gb = pyleo.Series(time=tx, value=x, time_unit='yr', label='Density',verbose=False,
                      value_name = r'$Density$',value_unit='STDA')
@@ -1036,60 +1021,65 @@ wf_gb_sig.dashboard(savefig_settings={'path':'./gb-Den_dash_Calamar_yr.tif','dpi
 ####### FIG E7. Cross-Wavelet Transform - MONTHLY DATA
 import pyleoclim as pyleo
 
-path_env = os.path.join('E:\\GDrive\\Academicos\\Articulos\\Pendientes\\Varadero growth rates\\Data_processed', 
-                     'env_monthly.xlsx')
-path_lum = os.path.join('E:\\GDrive\\Academicos\\Articulos\\Pendientes\\Varadero growth rates\\Data_processed', 
-                     'coral_lumn_monthly.xlsx')
-data_env_m = pd.ExcelFile(path_env)
-data_lum_m = pd.ExcelFile(path_lum)
-
-env_m = data_env_m.parse(0).iloc[0:419,:]
-env_m = data_env_m.parse(0)
-lum_m = data_lum_m.parse(0)
-
-# Load your data
-x = lum_m['G/B'].values
-# y = env_m['WF_Calamar'][:-1].values
-y = env_m['WF_Helena'][:-1].values
-tx = lum_m["Y.M"].values
-ty = env_m["Y.M"][:-1].values
+# Load your data (it must be sorted from oldest to recent dates)
+x = growth_det['Density_anom'].values
+y = envir_det['HadISST_anom'].values
+tx = lumin_det["Y.M."].values
+ty = envir_det["Y.M."].values
 
 
-ts_gb = pyleo.Series(time=tx, value=x, time_unit='yr', label='G/B',verbose=False,
-                     value_name = r'$Skeletal luminescence$',value_unit='G/B')
-ts_wf = pyleo.Series(time=ty, value=y, time_unit='yr', label='WF',verbose=False,
-                     value_name = r'$Water flow$',value_unit=r'$m_3$ $s_-1$')
+ts1 = pyleo.Series(time=tx, value=x, time_unit='yr', label='Density',verbose=False,
+                     value_name = '$Density$',value_unit='$g cm^{-3}$')
+ts2 = pyleo.Series(time=ty, value=y, time_unit='yr', label='HadISST',verbose=False,
+                     value_name = r'$SST$',value_unit=r'$C^o$')
+# ts1.plot()
 
-## Plot wavelet transform
-ts_gb.wavelet(method='cwt').plot()
-ts_wf.wavelet(method='cwt').plot()
+## Plot wavelet transform (CWT)
+ts1.wavelet(method='cwt').plot()
+ts2.wavelet(method='cwt').plot()
 
 ## It change the scales of the scalogram.
 ## First arg changes the Amplitude scale, the second arg changes the Y-scale
 ## Use fmax = 2 if data is deseasonalized, fmax = 12 for seasonalized data.
 ## The scales of interest are determined by fmin, if want to focus on
 ## scales of 1-10 year cycles use fmin = 1/10. The higher nf, the smoother the plot.
-ts_wf_scl = ts_wf.wavelet(freq_kwargs={'fmin':1/20,'fmax':6,'nf':100})
-ts_wf_scl.plot()
+ts2_scl = ts2.wavelet(freq_kwargs={'fmin':1/20,'fmax':6,'nf':100})
+ts2_scl.plot()
 
-## Plot significance
-ts_wf_sig = ts_wf_scl.signif_test(method='CN',number = 1000)
-ts_wf_sig.plot()
+## Plot significance of scalogram
+ts2_sig = ts2_scl.signif_test(method='CN',number = 1000)
+ts2_sig.plot()
 
-## Spectral plot
-psd = ts_wf.spectral(method='wwz')
+## Power spectral plot
+'''PSD shows how much variability (or power) a single time series contains at 
+different frequencies or periods. A high value means that a relatively large 
+proportion of the variance in the time series occurs around that frequency/timescale.'''
+psd = ts2.spectral(method='wwz')
 psd.beta_est().plot()
 
-#### Wavelet transform coherence between two series
-wf_gb = ts_wf.wavelet_coherence(ts_gb,method='wwz')
-fig, ax = wf_gb.plot()
+#### Weighted Wavelet Z-transform coherence between two series (WTC)
+'''This help to visualize where the two time series covary consistenly.
+It measures the localized correlation/coherence and it is useful to find 
+relationships. The arrows provide information about the phase, if they are pointing
+to the right the ts are in phase, if they are to the left then they are anti-phase.'''
+wwz = ts2.wavelet_coherence(ts1,method='wwz')
+fig, ax = wwz.plot()
 
-## Significance
-wf_gb_sig = wf_gb.signif_test(method='CN',number=200)
-fig, ax = wf_gb_sig.plot()
+## WWZ Significance
+''' NOTE: This line can take about 40 min to complete, using n 200 (surrogate models).
+number=200 is good for exploration, but min 500 or 1000 is recommended for 
+stronger inferences. The significance determines determines which of those 
+regions are stronger than expected under the specified null/surrogate model?'''
+wwz_sig = wwz.signif_test(method='CN',number=200)
+fig, ax = wwz_sig.plot()
 
-## Dashboard
-wf_gb_sig.dashboard()
+## Dashboard (it shows the WTC and cross-wavelet transform XWT plots)
+'''The WTC show how consistently the two series are related at a particular time 
+and timescale. The XWT indicate when the two series have strong common oscillatory 
+power at the same timescale. A high-power region means that both series have 
+strong variability at that period and time. However, high XWT power does not 
+necessarily mean strong correlation'''
+wwz_sig.dashboard()
 
 ## Save figure
-wf_gb_sig.dashboard(savefig_settings={'path':'./wf-gb_dash_Helena_monthly.tif','dpi':600})
+wwz_sig.dashboard(savefig_settings={'path':'./Helena-Density_dash_monthly_detr.tif','dpi':300})

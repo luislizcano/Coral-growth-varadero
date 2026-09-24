@@ -17,12 +17,15 @@ coral_data <- read_excel(file1,sheet=2)
 lumin_data <- read_excel(file2,sheet=1)
 envir_data <- read_excel(file3,sheet=1)
 
+## Rename G/B column
+names(lumin_data)[names(lumin_data) == 'G/B'] <- 'G_B'
+
 ## Fit coral data to 1954-2015
 coral_data_fit <- coral_data %>% slice(1:62)
 lumin_data_fit <- lumin_data %>% slice(1:62)
 
 ## Select columns
-cols_lumin <- lumin_data_fit %>% select(Year, `G/B`)
+cols_lumin <- lumin_data_fit %>% select(Year, G_B)
 cols_envir <- envir_data %>% select(Year,WF_Helena,WF_Calamar,HadISST,SOI,AMO)
 
 ## Merge all columns into a single data frame
@@ -38,7 +41,7 @@ df$Time <- 1:nrow(df)
 
 # Convert to LONG format (Crucial step for subplots)
 long_data <- df %>%
-  pivot_longer(cols = c(Density, Extension, Calcification, `G/B`,
+  pivot_longer(cols = c(Density, Extension, Calcification, G_B,
                         WF_Helena, WF_Calamar, HadISST, SOI, AMO), 
                names_to = "Variable", values_to = "Value")
 
@@ -149,3 +152,15 @@ ggsave(
   dpi = 300
 )
 
+
+
+# Individual GAMMs --------------------------------------------------------
+
+gamm1 <- gamm(
+  Density ~ s(Year, k = 10) + s(WF_Calamar, k = 10),
+  correlation = corAR1(form = ~ Year),
+  data = df)
+
+summary(gamm1$gam) # GAM model
+summary(gamm1$lme)
+plot(gamm1$gam, pages = 1)

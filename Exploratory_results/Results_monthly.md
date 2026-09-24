@@ -100,13 +100,13 @@ The data **violates** the assumptions of normality and homoscedasticity for Pear
 The group of environmental variables were tested for multicollinearity using the variance inflation factor (VIF).
 The VIF values were below 5, indicating there is no strong collinearity among variables.
 
-|          Variable |     VIF  |
-|-------------------|----------|
-|   WF_Helena_anom  | 1.902295 |
-|  WF_Calamar_anom  | 2.281343 |
-|     HadISST_anom  | 1.975874 |
-|         SOI_anom  | 1.456005 |
-|         AMO_anom  | 2.056262 |
+|          Variable |  VIF |
+|-------------------|------|
+|   WF_Helena_anom  | 1.90 |
+|  WF_Calamar_anom  | 2.28 |
+|     HadISST_anom  | 1.98 |
+|         SOI_anom  | 1.46 |
+|         AMO_anom  | 2.06 |
 
 However, the data **violates** the normality and autocorrelations (and potentially the homoscedasticity) assumptions for OLS linear regression (or Multiple linear regressions).
 
@@ -167,6 +167,15 @@ Variables such as Extension, WF_Helena, and AMO have clearly nonlinear trends.
 |SOI           |  0.14     | edf=2.1; p=0.17 | edf=0.0; p=0.71  | 0.03 |
 |AMO           | -0.02     | edf=4.1; p<0.001| edf=5.6; p<0.001 | 0.51 |
 
-Monthly data tend to be complex to work, specially if we are working with coral data that have monthly gaps filled with linear interpolations.
-The temporal resolution is not enough due to radiography resolution (pixel size). However, for the luminescence it is better, which we can use for
-the wavelet analysis.
+Monthly data tend to be complex to work, specially if we are working with coral data that have monthly gaps filled with linear interpolations,
+and those values are not independent observations containing new information because they were reconstructed from neighboring observations.
+I don't think we should include questions at the seasonal level (short-term), but be focused on the long-term questions.
+The reason that there are monthly gaps is because of the radiography resolution (pixel size), a single pixel can represent **one or more months**. 
+In comparison, the annual dataset has fewer observations, but each annual observation summarizes the information over an entire year and may be 
+more appropriate for the long-term ecological question.
+
+However, for analysis such as the **wavelet transforms** we can use monthly data with gaps through some methods that allows it. That does not mean we will
+look at seasonal or monthly data, we will observed periodicty, specially at long periods (interannual or decadal). The data will be deseasonalized, so monthly patterns
+will be removed. So, I think we should work with annual data and focus on the long-term trends and interannual variability.
+
+Let's continue with the analyses in the Results_annual.md file.

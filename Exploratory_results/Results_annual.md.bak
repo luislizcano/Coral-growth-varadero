@@ -210,10 +210,66 @@ Monthly data from 1981 to 1983 from Sta Helena was used to model water flow from
 assuming that the data from 1981 to 1983 at Sta Helena represents the water flow before the canal expansion of 1984, with minimal dredging impact.
 
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE0_waterflow-timeseries.png" width="500">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE0_waterflow-timeseries.png" width="700">
 </p>
 
 The plots show evidence that water flow at Sta Helena increases over time after 1984. Before the dredging events, water flow at Sta Helena
 represented 2-3% of the flow at Calamar. In contrast, this ratio increases up to 6% in average after 1984.
 
 This modeled data was averaged annually for the respective annual analyses.
+
+### GAMM 
+We will use individual comparisons among growth parameters and environmental variables (added to time; e.g. time series showed above), 
+using GAMMs accounting for autocorrelations and potential non-linearities.
+
+**Water flow at Santa Helena 1954-2015**
+Both time and WF_Helena are significantly associated with G/B, after accounting for the other variable. The temporal relationship estimated 
+by the GAM is essentially linear (edf = 1.0). This model establishes an association, not causation. The model explains approximately 48% 
+of the variation in G/B, after accounting for model complexity. The linear trend of G/B is decreasing and WF_Helena is increasing.
+
+|Variable      | Intercept | Time            |  WF_Helena      |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.037| edf=1.0; p=0.846| 0.19 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.553| 0.35 |
+|Calcification |  0.77     | edf=1.0; p=0.029| edf=1.0; p=0.251| 0.05 |
+|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 |
+
+**Water flow at Calamar 1954-2015**
+Not much difference from what was observed with Sta Helena data.
+
+|Variable      | Intercept | Time            |  WF_Calamar     |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.026| edf=1.0; p=0.693| 0.20 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.556| 0.35 |
+|Calcification |  0.77     | edf=1.9; p=0.034| edf=1.0; p=0.421| 0.10 |
+|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 |
+
+**HadISST 1954-2015**
+R2 for G/B was higher than with waterflow data, but the added HadISST data was not significant.
+
+|Variable      | Intercept | Time            |  HadISST        |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.023| edf=1.0; p=0.591| 0.19 |
+|Extension     |  1.07     | edf=7.7; p<0.001| edf=1.0; p=0.284| 0.33 |
+|Calcification |  0.77     | edf=1.9; p=0.017| edf=1.0; p=0.215| 0.05 |
+|G/B           |  1.02     | edf=3.2; p<0.001| edf=1.0; p=0.564| 0.61 |
+
+**SOI 1954-2015**
+R2 for G/B was higher than above variables.
+
+|Variable      | Intercept | Time            |  SOI            |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.288| 0.22 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.512| 0.35 |
+|Calcification |  0.77     | edf=3.2; p=0.081| edf=1.0; p=0.038| 0.09 |
+|G/B           |  1.02     | edf=3.4; p<0.001| edf=1.0; p<0.001| 0.67 |
+
+**AMO 1954-2015**
+R2 for G/B was higher than above variables.
+
+|Variable      | Intercept | Time            |  SOI            |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.288| 0.22 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.512| 0.35 |
+|Calcification |  0.77     | edf=3.2; p=0.081| edf=1.0; p=0.038| 0.09 |
+|G/B           |  1.02     | edf=3.4; p<0.001| edf=1.0; p<0.001| 0.67 |

@@ -217,3 +217,59 @@ The plots show evidence that water flow at Sta Helena increases over time after 
 represented 2-3% of the flow at Calamar. In contrast, this ratio increases up to 6% in average after 1984.
 
 This modeled data was averaged annually for the respective annual analyses.
+
+### GAMM 
+We will use individual comparisons among growth parameters and environmental variables (added to time; e.g. time series showed above), 
+using GAMMs accounting for autocorrelations and potential non-linearities.
+
+**Water flow at Santa Helena 1954-2015**
+Both time and WF_Helena are significantly associated with G/B, after accounting for the other variable. The temporal relationship estimated 
+by the GAM is essentially linear (edf = 1.0). This model establishes an association, not causation. The model explains approximately 48% 
+of the variation in G/B, after accounting for model complexity. The linear trend of G/B is decreasing and WF_Helena is increasing.
+
+|Variable      | Intercept | Time            |  WF_Helena      |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.037| edf=1.0; p=0.846| 0.19 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.553| 0.35 |
+|Calcification |  0.77     | edf=1.0; p=0.029| edf=1.0; p=0.251| 0.05 |
+|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 |
+
+**Water flow at Calamar 1954-2015**
+Not much difference from what was observed with Sta Helena data.
+
+|Variable      | Intercept | Time            |  WF_Calamar     |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.026| edf=1.0; p=0.693| 0.20 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.556| 0.35 |
+|Calcification |  0.77     | edf=1.9; p=0.034| edf=1.0; p=0.421| 0.10 |
+|G/B           |  1.02     | edf=1.0; p<0.001| edf=1.0; p<0.001| 0.48 |
+
+**HadISST 1954-2015**
+R2 for G/B was higher than with waterflow data, but the added HadISST data was not significant.
+
+|Variable      | Intercept | Time            |  HadISST        |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.023| edf=1.0; p=0.591| 0.19 |
+|Extension     |  1.07     | edf=7.7; p<0.001| edf=1.0; p=0.284| 0.33 |
+|Calcification |  0.77     | edf=1.9; p=0.017| edf=1.0; p=0.215| 0.05 |
+|G/B           |  1.02     | edf=3.2; p<0.001| edf=1.0; p=0.564| 0.61 |
+
+**SOI 1954-2015**
+R2 for G/B was higher than above variables.
+
+|Variable      | Intercept | Time            |  SOI            |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.288| 0.22 |
+|Extension     |  1.07     | edf=7.5; p<0.001| edf=1.0; p=0.512| 0.35 |
+|Calcification |  0.77     | edf=3.2; p=0.081| edf=1.0; p=0.038| 0.09 |
+|G/B           |  1.02     | edf=3.4; p<0.001| edf=1.0; p<0.001| 0.67 |
+
+**AMO 1954-2015**
+Adding AMO changed the observed patterns.
+
+|Variable      | Intercept | Time            |  AMO            |  R2  |
+|--------------|-----------|-----------------|-----------------|------|
+|Density       |  0.73     | edf=1.0; p=0.029| edf=1.0; p=0.884| 0.19 |
+|Extension     |  1.07     | edf=1.0; p=0.533| edf=1.0; p<0.001| 0.18 |
+|Calcification |  0.77     | edf=1.0; p<0.001| edf=1.0; p=0.072| 0.07 |
+|G/B           |  1.02     | edf=3.3; p<0.001| edf=1.0; p=0.376| 0.62 |
