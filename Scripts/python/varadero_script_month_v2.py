@@ -1083,3 +1083,73 @@ wwz_sig.dashboard()
 
 ## Save figure
 wwz_sig.dashboard(savefig_settings={'path':'./HadISST-Extension_dash_monthly_detr.tif','dpi':300})
+
+
+
+# ============================================================
+# 1. Define the 2–5 year Butterworth band-pass filter
+# ============================================================
+from scipy.signal import butter, sosfiltfilt
+# Sampling frequency = 12 observations per year
+fs = 12.0
+
+# Desired periods
+short_period = 2.0   # years
+long_period = 5.0    # years
+
+# Convert periods to frequencies (cycles/year)
+high_frequency = 1 / short_period   # 0.50 cycles/year
+low_frequency = 1 / long_period     # 0.20 cycles/year
+
+# Nyquist frequency
+nyquist = fs / 2
+
+# Normalize frequencies for scipy
+low = low_frequency / nyquist
+high = high_frequency / nyquist
+
+# 4th-order Butterworth filter
+sos = butter(4, [low, high], btype='bandpass', output='sos')
+
+# ============================================================
+# 2. Apply the filter
+# ============================================================
+envir_det['WF_Calamar_anom_2-5yr'] = sosfiltfilt(sos, envir_det['WF_Calamar_anom'].values)
+lumin_det['GB_anom_2-5yr'] = sosfiltfilt(sos, lumin_det['G/B_anom'].values)
+
+# ============================================================
+# 3. Plot luminescence: original vs 2–5 year component
+# ============================================================
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(lumin_det['Y.M.'], envir_det['WF_Calamar_anom'], alpha=0.35, label='WF deseasonalized')
+ax.plot(lumin_det['Y.M.'], envir_det['WF_Calamar_anom_2-5yr'], lw=2,label='2–5 year component')
+ax.set_xlabel('Year')
+ax.set_ylabel('G/B')
+ax.set_title('Waterflow (Calamar): 2–5 year variability')
+ax.legend()
+plt.tight_layout()
+plt.show()
+#fig.savefig(dir+'\\figE_WF-Calamar_2-5yr_variability.tiff', format='tiff', dpi=300,bbox_inches = 'tight')
+
+# ============================================================
+# 4. Calculate variability in different periods
+# ============================================================
+
+periods = {'1954–1969': (1953.99999998459, 1969.91666665637),
+           '1970–1983': (1969.99999998973, 1983.91666666086),
+           '1984–2015': (1983.99999999422, 2015.9166666666665)}
+results = []
+
+for period, (start, end) in periods.items():
+
+    subset = lumin_det[
+        (lumin_det['Y.M.'] >= start) &
+        (lumin_det['Y.M.'] <= end)]
+
+    results.append({
+        'Period': period,
+        'Mean': subset['GB_anom_2-5yr'].mean(),
+        'SD': subset['GB_anom_2-5yr'].std() })
+results_df = pd.DataFrame(results)
+print("\n2–5 year variability:")
+print(results_df.to_string(index=False))

@@ -380,3 +380,27 @@ Then between 1975-1981 (approx.) the coherence band is from ~1-5 yrs, then it co
 Maybe the water discharged was not enough to reach the reef before the 1970s? Then something happened in late 1970 that caused the 
 water discharged to reach the reef (there was La Nina event in 1974-1975), and this effect (or connection Varadero-El Dique) stayed 
 permanently, maybe favored by the dredging of 1984. We can elaborate further hypotheses around this...
+
+### Variation of waterflow and G/B among periods
+Here, we will try to know if waterflow and luminescence variability at 2–5 year timescales were weaker before the 
+1970s/1984 and stronger afterward, to provide more insights about what was observed in the wavelet plots. SO, these
+time series data was filtered for a 2-5 yr scale and plotted, showing an apparent synchronization after 1970s and 
+increases in amplitude.
+
+<p align="center">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE5_WF-Calamar_2-5yr_variability.png" width="500">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/Exploratorias/figE5_GB_2-5yr_variability.png" width="500">
+</p>
+
+The Mean +- SD for three different periods showed that variability (SD) at 2-5 yr timescales in waterflow (Calamar) was higher 
+after 1970-1983, consistently with the increases in variability in luminescence. Also, in Calamar that variability stayed very 
+similar in the period 1984-2015, but it was higher for luminescence, which we could attribute to the dredging event (as hypothesis). 
+This increase in variability (or amplitude) contribute to the hypothesis that hydrological changes could contribute to stronger WTC.
+The waterflow at Sta Helena is just a reference because the data before 1984 was modeled, so I don't think drawing any conclusions 
+from that data is reliable.
+
+|   Period  |  WF_Calamar      |  WF_Helena       |  G/B (x1000)     |
+|-----------|------------------|------------------|------------------|
+| 1954–1969 |-24.7 &pm; 581.4  |-0.7 &pm; 18.9    | 0.461 &pm; 5.229 |
+| 1970–1983 |-37.5 &pm; 1190.2 |-3.2 &pm; 45.5    |-0.449 &pm; 7.850 |
+| 1984–2015 | 36.2 &pm; 1159.2 | 2.1 &pm; 61.6    | 0.173 &pm; 8.173 |
