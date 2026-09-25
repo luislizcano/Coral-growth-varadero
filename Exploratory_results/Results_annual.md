@@ -364,6 +364,19 @@ Left image is waterflow at Calamar and right is at Sta Helena.
 <img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Scripts/python/wavelet_figures/Helena-Lumin_dash_monthly_detr.png" width="400">
 </p>
 
-There is significant coherence between the two timeseries in the period 1975-2015 in the scale of 2-5 years (in-phase). The areas
-of high common power are are visualized in the XWT plot. In other words, the G/B and Waterflow covaries at the 1-4 year scales
-bewteen 1970-1990, then covaries at 2-5 year scales between 1990-2015.
+There is a particularly broad region of high WTC between approximately 2 and 5 years, beginning around 1978–1980 and continuing 
+through much of the later record. That means that water flow and skeletal luminescence exhibit strong localized coherence at 
+**interannual timescales**, particularly in that period. Right-pointing arrows indicate that the two series are approximately in phase.
+This means that when water flow has an anomalously high value within this ~2–5-year variability, luminescence tends to be anomalously 
+high as well, and vice versa. The yellow cores in WTC seems to be related to El Nino/Nina events. The XWT shows localized areas within 
+the WTC band with common and high oscillatory power. We can conclude that luminescence covary with water flow at 2-5 year 
+timescales between ~1978-2015. The comparison between the period 1984-2015 in the two stations did not show different patterns,
+they look almost identical. It is complicated to interpret the Sta Helena data before 1984 because it was modelled assuming a 
+constant variation.
+
+Now, this result raises an interesting question about why this covariation was not observed before the 1970s? There is a tongue
+of coherence around 5-yr scales, then it stops, but the oscillatory power was not signifcant according to XWT. 
+Then between 1975-1981 (approx.) the coherence band is from ~1-5 yrs, then it contracts to 2-5 yrs, and stay almost stable over time.
+Maybe the water discharged was not enough to reach the reef before the 1970s? Then something happened in late 1970 that caused the 
+water discharged to reach the reef (there was La Nina event in 1974-1975), and this effect (or connection Varadero-El Dique) stayed 
+permanently, maybe favored by the dredging of 1984. We can elaborate further hypotheses around this...
