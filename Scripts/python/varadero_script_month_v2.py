@@ -1022,17 +1022,17 @@ wf_gb_sig.dashboard(savefig_settings={'path':'./gb-Den_dash_Calamar_yr.tif','dpi
 import pyleoclim as pyleo
 
 # Load your data (it must be sorted from oldest to recent dates)
-x = growth_det['Density_anom'].values
-y = envir_det['AMO'].values
+x = growth_det['Extension_anom'].values
+y = envir_det['HadISST_anom'].values
 tx = lumin_det["Y.M."].values
 ty = envir_det["Y.M."].values
 
 
-ts1 = pyleo.Series(time=tx, value=x, time_unit='yr', label='Density',verbose=False,
-                     value_name = '$Density$',value_unit='$g cm^{-3}$')
-ts2 = pyleo.Series(time=ty, value=y, time_unit='yr', label='AMO',verbose=False,
-                     value_name = r'$AMO$',value_unit=r'$unitless$')
-# ts1.plot()
+ts1 = pyleo.Series(time=tx, value=x, time_unit='yr', label='Extension',verbose=False,
+                     value_name = '$Extension$',value_unit='$cm yr^{-1}$')
+ts2 = pyleo.Series(time=ty, value=y, time_unit='yr', label='SST',verbose=False,
+                     value_name = r'$HadISST$',value_unit=r'$^{o}C$')
+# ts2.plot()
 
 ## Plot wavelet transform (CWT)
 ts1.wavelet(method='cwt').plot()
@@ -1082,4 +1082,4 @@ necessarily mean strong correlation'''
 wwz_sig.dashboard()
 
 ## Save figure
-wwz_sig.dashboard(savefig_settings={'path':'./AMO-Density_dash_monthly_detr.tif','dpi':300})
+wwz_sig.dashboard(savefig_settings={'path':'./HadISST-Extension_dash_monthly_detr.tif','dpi':300})

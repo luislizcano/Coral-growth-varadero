@@ -164,7 +164,7 @@ df$WF_Calamar_lag2 <- dplyr::lag(df$WF_Calamar, 2)
 
 ## Model
 gamm1 <- gamm(
-  G_B ~ s(Year, k = 10) + s(WF_Helena * After, k = 10),
+  G_B ~ s(Year, k = 10) + s(WF_Calamar, k = 10) + s(SOI, k = 10),
   correlation = corAR1(form = ~ Year),
   data = df)
 
@@ -176,3 +176,8 @@ plot(gamm1$gam, pages = 1) ## plot trends
 
 ## find the slope (if linear)
 lm(G_B ~ SOI + Year, data = df)
+
+cor.test(df$SOI,
+         df$WF_Helena,
+         method = "spearman",
+         use = "complete.obs")
