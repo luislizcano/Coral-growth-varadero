@@ -360,8 +360,8 @@ analyses, because it increase the resolution (better than using annual data), ev
 Left image is waterflow at Calamar and right is at Sta Helena.
 
 <p align="center">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Scripts/python/wavelet_figures/Calamar-Lumin_dash_monthly_detr.png" width="400">
-<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Scripts/python/wavelet_figures/Helena-Lumin_dash_monthly_detr.png" width="400">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/wavelet_figures/Calamar-Lumin_dash_monthly_detr.png" width="400">
+<img src="https://github.com/luislizcano/Coral-growth-varadero/blob/main/Figures/wavelet_figures/Helena-Lumin_dash_monthly_detr.png" width="400">
 </p>
 
 There is a particularly broad region of high WTC between approximately 2 and 5 years, beginning around 1978–1980 and continuing 
